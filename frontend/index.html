@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>StadiumMate — Accessible Stadium Assistant</title>
+<title>PitchPulse — Context-Aware Stadium Assistant</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
@@ -58,12 +58,23 @@
         <path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,1.5A8.48,8.48,0,0,1,16.5,5.1l-1.3,2.2a2.3,2.3,0,0,0-1,.2L12,6.1l-2.2,1.4a2.3,2.3,0,0,0-1-.2L7.5,5.1A8.48,8.48,0,0,1,12,3.5Zm-5,14a8.47,8.47,0,0,1-3.1-4l2.4-1.2A2.46,2.46,0,0,0,7,13.6l.8,2.4Zm8,1.4a8.47,8.47,0,0,1-6,0l1.3-2.2a2.3,2.3,0,0,0,1.2-.2l2.2,1.4ZM20.1,13.5a8.47,8.47,0,0,1-3.1,4l-1.3-2.2a2.3,2.3,0,0,0,.8-1.2l2.4,1.2ZM12,8.8l2.2,1.4a1.8,1.8,0,0,1,.8,1.2L14,13.6l-2,1.2-2-1.2-1-2.2A1.8,1.8,0,0,1,9.8,10.2Z"/>
       </svg>
       <div>
-        <h1 class="text-2xl font-bold tracking-tight" id="brand-title">StadiumMate</h1>
+        <h1 class="text-2xl font-bold tracking-tight" id="brand-title">PitchPulse</h1>
         <p class="text-xs text-gray-200" id="brand-subtitle">Accessible wayfinding for FIFA World Cup 2026</p>
       </div>
     </div>
     
-    <div class="flex items-center gap-4 ml-auto">
+    <div class="flex items-center gap-4 ml-auto flex-wrap">
+      <!-- Live Connection State Dot -->
+      <span class="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 px-2 py-1 rounded text-xs text-gray-200" id="statusIndicator">
+        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse" id="statusDot"></span>
+        <span id="statusText">Connecting...</span>
+      </span>
+
+      <!-- AI Provider Badge -->
+      <span class="bg-amber-400/10 border border-amber-400/20 text-amber-300 font-semibold px-2.5 py-1 rounded text-xs tracking-wide uppercase" id="providerBadge">
+        Demo Mode
+      </span>
+
       <div class="flex flex-col text-right">
         <label for="lang-select" class="text-xs text-gray-200 font-semibold mb-1" id="lang-label">Language</label>
         <select id="lang-select" onchange="changeLanguage(this.value)" class="text-sm bg-white text-gray-800 border border-gray-300 rounded px-2 py-1 outline-none cursor-pointer focus:ring-1 focus:ring-stadiumgreen w-28">
@@ -72,7 +83,8 @@
           <option value="fr">Français</option>
         </select>
       </div>
-      <button onclick="toggleA11yMode()" class="border-2 border-white text-white font-semibold rounded px-4 py-2 hover:bg-white/10 transition text-sm mt-4 self-end" id="a11y-btn">
+
+      <button onclick="toggleA11yMode()" class="border-2 border-white text-white font-semibold rounded px-4 py-2 hover:bg-white/10 transition text-sm self-end" id="a11y-btn">
         High-visibility / screen-reader mode
       </button>
     </div>
@@ -123,16 +135,24 @@
           <fieldset class="border border-gray-300 rounded-lg p-4 space-y-2">
             <legend class="text-xs font-semibold text-gray-600 px-2 ml-2" id="a11y-legend">Accessibility needs</legend>
             <div class="flex items-center gap-3 text-sm text-gray-800">
-              <input type="checkbox" id="need-wheelchair" name="a11y-needs" class="w-4 h-4 text-stadiumgreen border-gray-300 rounded focus:ring-stadiumgreen cursor-pointer" />
+              <input type="checkbox" id="need-wheelchair" name="a11y-needs" value="wheelchair" onchange="handleCheckboxChange('wheelchair')" class="w-4 h-4 text-stadiumgreen border-gray-300 rounded focus:ring-stadiumgreen cursor-pointer" />
               <label for="need-wheelchair" class="cursor-pointer" id="need-wheelchair-label">Wheelchair / step-free</label>
             </div>
             <div class="flex items-center gap-3 text-sm text-gray-800">
-              <input type="checkbox" id="need-vision" name="a11y-needs" class="w-4 h-4 text-stadiumgreen border-gray-300 rounded focus:ring-stadiumgreen cursor-pointer" />
-              <label for="need-vision" class="cursor-pointer" id="need-vision-label">Low vision / screen reader</label>
+              <input type="checkbox" id="need-sensory" name="a11y-needs" value="sensory" onchange="handleCheckboxChange('sensory')" class="w-4 h-4 text-stadiumgreen border-gray-300 rounded focus:ring-stadiumgreen cursor-pointer" />
+              <label for="need-sensory" class="cursor-pointer" id="need-sensory-label">Sensory-friendly</label>
             </div>
             <div class="flex items-center gap-3 text-sm text-gray-800">
-              <input type="checkbox" id="need-hearing" name="a11y-needs" class="w-4 h-4 text-stadiumgreen border-gray-300 rounded focus:ring-stadiumgreen cursor-pointer" />
-              <label for="need-hearing" class="cursor-pointer" id="need-hearing-label">Deaf / hard of hearing</label>
+              <input type="checkbox" id="need-companion" name="a11y-needs" value="companion" onchange="handleCheckboxChange('companion')" class="w-4 h-4 text-stadiumgreen border-gray-300 rounded focus:ring-stadiumgreen cursor-pointer" />
+              <label for="need-companion" class="cursor-pointer" id="need-companion-label">Companion Seating</label>
+            </div>
+            <div class="flex items-center gap-3 text-sm text-gray-800">
+              <input type="checkbox" id="need-asl" name="a11y-needs" value="asl" onchange="handleCheckboxChange('asl')" class="w-4 h-4 text-stadiumgreen border-gray-300 rounded focus:ring-stadiumgreen cursor-pointer" />
+              <label for="need-asl" class="cursor-pointer" id="need-asl-label">ASL Support</label>
+            </div>
+            <div class="flex items-center gap-3 text-sm text-gray-800">
+              <input type="checkbox" id="need-walking" name="a11y-needs" value="walking" onchange="handleCheckboxChange('walking')" class="w-4 h-4 text-stadiumgreen border-gray-300 rounded focus:ring-stadiumgreen cursor-pointer" />
+              <label for="need-walking" class="cursor-pointer" id="need-walking-label">Short Distance</label>
             </div>
           </fieldset>
 
@@ -165,10 +185,25 @@
     </section>
     
     <!-- Right Column: Assistance Display -->
-    <section class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm flex flex-col">
-      <h2 class="text-lg font-bold text-gray-900 mb-4" id="assistance-title">Assistance</h2>
+    <section class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm flex flex-col gap-4">
+      <h2 class="text-lg font-bold text-gray-900 mb-2" id="assistance-title">Assistance</h2>
+
+      <!-- Live Rationale Bar -->
+      <div class="bg-emerald-50 border border-emerald-200 rounded-md p-3 text-xs text-emerald-800" id="rationaleBar">
+        <strong>💡 Live Gate Suggestion:</strong> <span id="recommendationExplanation">Analyzing best path...</span>
+      </div>
+
+      <!-- Dynamic Accessibility Guidance Banner -->
+      <div class="bg-blue-50 border border-blue-200 rounded-md p-4 flex flex-col gap-2" id="guidanceBanner" style="display: none;">
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold text-blue-800 uppercase tracking-wider" id="guidanceTitle">Accessibility Guidance</span>
+          <span class="bg-blue-600 text-white font-mono font-bold text-xs px-2 py-0.5 rounded" id="guidanceGateBadge">—</span>
+        </div>
+        <div class="text-sm text-blue-900 leading-relaxed" id="guidanceBody">—</div>
+        <div class="text-xs text-blue-700 border-t border-blue-200/50 pt-2 mt-1" id="guidanceServices">—</div>
+      </div>
       
-      <div id="log" class="flex-1 flex flex-col justify-center items-center text-center text-gray-500 space-y-4 min-h-[300px]">
+      <div id="log" class="flex-1 flex flex-col justify-center items-center text-center text-gray-500 space-y-4 min-h-[300px] overflow-y-auto">
         <div id="placeholder-msg" class="max-w-md text-sm text-gray-400">
           Fill in your context and select “Get help”. Your answer appears here.
         </div>
@@ -191,10 +226,12 @@
     const submitBtn = document.getElementById('submit-btn');
     let history = [];
     let currentLanguage = 'en';
+    let currentProfile = 'none';
+    let cachedStatus = null;
 
     const translations = {
       en: {
-        brandTitle: 'StadiumMate',
+        brandTitle: 'PitchPulse',
         brandSubtitle: 'Accessible wayfinding for FIFA World Cup 2026',
         langLabel: 'Language',
         a11yBtn: 'High-visibility / screen-reader mode',
@@ -203,8 +240,10 @@
         destLabel: 'Where do you want to go?',
         a11yLegend: 'Accessibility needs',
         needWheelchair: 'Wheelchair / step-free',
-        needVision: 'Low vision / screen reader',
-        needHearing: 'Deaf / hard of hearing',
+        needSensory: 'Sensory-friendly',
+        needCompanion: 'Companion Seating',
+        needAsl: 'ASL Support',
+        needWalking: 'Short Distance',
         ticketLabel: 'Ticket section (optional)',
         kickoffLabel: 'Minutes to kick-off',
         questionLabel: 'Ask a question (optional)',
@@ -215,7 +254,12 @@
         defaultAssistance: 'Fill in your context and select “Get help”. Your answer appears here.',
         footerText: 'MetLife Stadium · New York New Jersey Stadium · East Rutherford, NJ, USA',
         opsLink: 'Ops Console →',
-        thinkingMsg: '<div class="text-sm text-stadiumgreen font-semibold"><span class="inline-block w-4 h-4 border-2 border-gray-300 border-t-stadiumgreen rounded-full animate-spin mr-2 align-middle"></span>StadiumMate is calculating directions...</div>',
+        recommendationLabel: '💡 Live Gate Suggestion:',
+        guidanceTitle: 'Accessibility Guidance',
+        connecting: 'Connecting...',
+        liveConnected: 'Live Connected',
+        disconnected: 'Disconnected (Retrying)',
+        thinkingMsg: '<div class="text-sm text-stadiumgreen font-semibold"><span class="inline-block w-4 h-4 border-2 border-gray-300 border-t-stadiumgreen rounded-full animate-spin mr-2 align-middle"></span>PitchPulse is calculating directions...</div>',
         locations: {
           "Gate A": "Gate A (South-West)",
           "Gate B": "Gate B (North-West)",
@@ -240,7 +284,7 @@
         }
       },
       es: {
-        brandTitle: 'StadiumMate',
+        brandTitle: 'PitchPulse',
         brandSubtitle: 'Navegación accesible para la Copa Mundial de la FIFA 2026',
         langLabel: 'Idioma',
         a11yBtn: 'Modo de alta visibilidad / lector de pantalla',
@@ -249,8 +293,10 @@
         destLabel: '¿A dónde quiere ir?',
         a11yLegend: 'Necesidades de accesibilidad',
         needWheelchair: 'Silla de ruedas / Sin escalones',
-        needVision: 'Baja visión / Lector de pantalla',
-        needHearing: 'Sordo / Problemas de audición',
+        needSensory: 'Sensorialmente amigable',
+        needCompanion: 'Asiento de acompañante',
+        needAsl: 'Soporte de señas (ASL)',
+        needWalking: 'Distancia corta',
         ticketLabel: 'Sección de entrada (opcional)',
         kickoffLabel: 'Minutos para el inicio',
         questionLabel: 'Hacer una pregunta (opcional)',
@@ -261,7 +307,12 @@
         defaultAssistance: 'Complete su contexto y seleccione "Obtener ayuda". Su respuesta aparecerá aquí.',
         footerText: 'MetLife Stadium · Estadio de Nueva York Nueva Jersey · East Rutherford, NJ, EE. UU.',
         opsLink: 'Consola de Operaciones →',
-        thinkingMsg: '<div class="text-sm text-stadiumgreen font-semibold"><span class="inline-block w-4 h-4 border-2 border-gray-300 border-t-stadiumgreen rounded-full animate-spin mr-2 align-middle"></span>StadiumMate está calculando indicaciones...</div>',
+        recommendationLabel: '💡 Sugerencia de Puerta en Vivo:',
+        guidanceTitle: 'Guía de Accesibilidad',
+        connecting: 'Conectando...',
+        liveConnected: 'Conectado en Vivo',
+        disconnected: 'Desconectado (Reintentando)',
+        thinkingMsg: '<div class="text-sm text-stadiumgreen font-semibold"><span class="inline-block w-4 h-4 border-2 border-gray-300 border-t-stadiumgreen rounded-full animate-spin mr-2 align-middle"></span>PitchPulse está calculando indicaciones...</div>',
         locations: {
           "Gate A": "Puerta A (Suroeste)",
           "Gate B": "Puerta B (Noroeste)",
@@ -286,7 +337,7 @@
         }
       },
       fr: {
-        brandTitle: 'StadiumMate',
+        brandTitle: 'PitchPulse',
         brandSubtitle: 'Guidage accessible pour la Coupe du Monde de la FIFA 2026',
         langLabel: 'Langue',
         a11yBtn: 'Mode haute visibilité / lecteur d\'écran',
@@ -295,8 +346,10 @@
         destLabel: 'Où voulez-vous aller ?',
         a11yLegend: 'Besoins d\'accessibilité',
         needWheelchair: 'Fauteuil roulant / Sans marche',
-        needVision: 'Basse vision / Lecteur d\'écran',
-        needHearing: 'Sourd / Malentendant',
+        needSensory: 'Sensoriel',
+        needCompanion: 'Siège compagnon',
+        needAsl: 'Traduction ASL',
+        needWalking: 'Distance réduite',
         ticketLabel: 'Section de billet (optionnel)',
         kickoffLabel: 'Minutes avant le coup d\'envoi',
         questionLabel: 'Poser une question (optionnel)',
@@ -307,7 +360,12 @@
         defaultAssistance: 'Remplissez votre contexte et sélectionnez « Obtenir de l\'aide ». Votre réponse apparaîtra ici.',
         footerText: 'MetLife Stadium · Stade de New York New Jersey · East Rutherford, NJ, USA',
         opsLink: 'Console des Opérations →',
-        thinkingMsg: '<div class="text-sm text-stadiumgreen font-semibold"><span class="inline-block w-4 h-4 border-2 border-gray-300 border-t-stadiumgreen rounded-full animate-spin mr-2 align-middle"></span>StadiumMate calcule l\'itinéraire...</div>',
+        recommendationLabel: '💡 Suggestion de Porte en Direct:',
+        guidanceTitle: 'Guidance d\'Accessibilité',
+        connecting: 'Connexion...',
+        liveConnected: 'Connecté en Direct',
+        disconnected: 'Déconnecté (Tentative de reconnexion)',
+        thinkingMsg: '<div class="text-sm text-stadiumgreen font-semibold"><span class="inline-block w-4 h-4 border-2 border-gray-300 border-t-stadiumgreen rounded-full animate-spin mr-2 align-middle"></span>PitchPulse calcule l\'itinéraire...</div>',
         locations: {
           "Gate A": "Porte A (Sud-Ouest)",
           "Gate B": "Porte B (Nord-Ouest)",
@@ -338,7 +396,6 @@
       localStorage.setItem('user-language', lang);
       const dict = translations[lang];
 
-      // Update static elements
       document.getElementById('brand-title').textContent = dict.brandTitle;
       document.getElementById('brand-subtitle').textContent = dict.brandSubtitle;
       document.getElementById('lang-label').textContent = dict.langLabel;
@@ -348,8 +405,10 @@
       document.getElementById('dest-label').textContent = dict.destLabel;
       document.getElementById('a11y-legend').textContent = dict.a11yLegend;
       document.getElementById('need-wheelchair-label').textContent = dict.needWheelchair;
-      document.getElementById('need-vision-label').textContent = dict.needVision;
-      document.getElementById('need-hearing-label').textContent = dict.needHearing;
+      document.getElementById('need-sensory-label').textContent = dict.needSensory;
+      document.getElementById('need-companion-label').textContent = dict.needCompanion;
+      document.getElementById('need-asl-label').textContent = dict.needAsl;
+      document.getElementById('need-walking-label').textContent = dict.needWalking;
       document.getElementById('ticket-label').textContent = dict.ticketLabel;
       document.getElementById('kickoff-label').textContent = dict.kickoffLabel;
       document.getElementById('question-label').textContent = dict.questionLabel;
@@ -359,8 +418,9 @@
       document.getElementById('assistance-title').textContent = dict.assistanceTitle;
       document.getElementById('footer-text').textContent = dict.footerText;
       document.getElementById('ops-link').textContent = dict.opsLink;
+      document.getElementById('rationaleBar').querySelector('strong').textContent = dict.recommendationLabel;
+      document.getElementById('guidanceTitle').textContent = dict.guidanceTitle;
 
-      // Update options
       const locSelect = document.getElementById('planner-loc');
       Array.from(locSelect.options).forEach(opt => {
         if (dict.locations[opt.value]) opt.textContent = dict.locations[opt.value];
@@ -371,10 +431,134 @@
         if (dict.destinations[opt.value]) opt.textContent = dict.destinations[opt.value];
       });
 
-      // Clear dynamic response content
       log.className = "flex-1 flex flex-col justify-center items-center text-center text-gray-500 space-y-4 min-h-[300px]";
       log.innerHTML = `<div id="placeholder-msg" class="max-w-md text-sm text-gray-400">${dict.defaultAssistance}</div>`;
       history = [];
+    }
+
+    // Handles mutual exclusion of accessibility checkboxes to keep profile state consistent
+    function handleCheckboxChange(profileType) {
+      const checkbox = document.getElementById('need-' + profileType);
+      const isChecked = checkbox.checked;
+
+      // Uncheck other checkboxes
+      const checkboxIds = ['need-wheelchair', 'need-sensory', 'need-companion', 'need-asl', 'need-walking'];
+      checkboxIds.forEach(id => {
+        if (id !== 'need-' + profileType) {
+          document.getElementById(id).checked = false;
+        }
+      });
+
+      currentProfile = isChecked ? profileType : 'none';
+      updateGuidanceBanner();
+    }
+
+    function updateGuidanceBanner() {
+      const banner = document.getElementById('guidanceBanner');
+      const titleEl = document.getElementById('guidanceTitle');
+      const badgeEl = document.getElementById('guidanceGateBadge');
+      const bodyEl = document.getElementById('guidanceBody');
+      const servicesEl = document.getElementById('guidanceServices');
+
+      if (currentProfile === 'none' || !cachedStatus) {
+        banner.style.display = 'none';
+        return;
+      }
+
+      banner.style.display = 'flex';
+      const recommendedGate = cachedStatus.recommended_gate || 'Gate A';
+      const recommendedAccessibleGate = cachedStatus.recommended_accessible_gate || 'Gate D';
+
+      if (currentProfile === 'wheelchair') {
+        banner.style.borderColor = 'var(--turf)';
+        banner.style.background = 'var(--turf-dim)';
+        titleEl.innerHTML = currentLanguage === 'es' ? '♿ Acceso Sin Escalones' : (currentLanguage === 'fr' ? '♿ Accès sans marche' : '♿ Step-free / Wheelchair Route');
+        badgeEl.textContent = recommendedAccessibleGate;
+        bodyEl.textContent = currentLanguage === 'es' 
+          ? `Evite las escaleras en la Puerta C. Ingrese exclusivamente a través de la ${recommendedAccessibleGate} (con prioridad accesible).`
+          : (currentLanguage === 'fr'
+              ? `Évitez les marches de la Porte C. Entrez uniquement via la ${recommendedAccessibleGate} (priorité accessible).`
+              : `Avoid stairs at Gate C. Enter exclusively via ${recommendedAccessibleGate} (accessible priority).`);
+        servicesEl.innerHTML = currentLanguage === 'es'
+          ? `<strong>Servicios:</strong> Préstamo de sillas de ruedas en el stand de Guest Services de la ${recommendedAccessibleGate}.`
+          : (currentLanguage === 'fr'
+              ? `<strong>Services:</strong> Prêt de fauteuils roulants au stand d'accueil de la ${recommendedAccessibleGate}.`
+              : `<strong>Available Services:</strong> Wheelchair rental at the Guest Services kiosk inside ${recommendedAccessibleGate}.`);
+      }
+      else if (currentProfile === 'sensory') {
+        banner.style.borderColor = 'var(--amber)';
+        banner.style.background = 'var(--amber-dim)';
+        titleEl.innerHTML = currentLanguage === 'es' ? '🎧 Ruta Sensorial Amigable' : (currentLanguage === 'fr' ? '🎧 Espace Sensoriel' : '🎧 Sensory-Friendly Guidance');
+        badgeEl.textContent = recommendedGate;
+        bodyEl.textContent = currentLanguage === 'es'
+          ? `Evite las multitudes ruidosas ingresando por la ${recommendedGate}. Sala sensorial tranquila ubicada en la Zona Z4.`
+          : (currentLanguage === 'fr'
+              ? `Évitez les foules en entrant par la ${recommendedGate}. Espace sensoriel calme situé en Zone Z4.`
+              : `Avoid loud crowds by entering via ${recommendedGate}. Quiet sensory room is situated in Zone Z4 near Gate D.`);
+        servicesEl.innerHTML = currentLanguage === 'es'
+          ? `<strong>Servicios:</strong> Auriculares con cancelación de ruido en la Puerta D.`
+          : (currentLanguage === 'fr'
+              ? `<strong>Services:</strong> Casques anti-bruit disponibles à la Porte D.`
+              : `<strong>Available Services:</strong> Noise-canceling headphones and tactile tools are at Gate D Guest Services.`);
+      }
+      else if (currentProfile === 'companion') {
+        banner.style.borderColor = 'var(--blue)';
+        banner.style.background = 'var(--blue-dim)';
+        titleEl.innerHTML = currentLanguage === 'es' ? '👥 Asientos de Acompañante' : (currentLanguage === 'fr' ? '👥 Siège Compagnon' : '👥 Companion Seating Support');
+        
+        let gate = 'Gate D';
+        if (cachedStatus && cachedStatus.closed_gates) {
+          if (cachedStatus.closed_gates.includes('Gate D')) gate = 'Gate A';
+        }
+        badgeEl.textContent = gate;
+        bodyEl.textContent = currentLanguage === 'es'
+          ? `Las solicitudes de asientos se gestionan en las mesas de supervisores de las Puertas A y D.`
+          : (currentLanguage === 'fr'
+              ? `Les demandes de sièges compagnons sont gérées aux comptoirs des superviseurs des Portes A et D.`
+              : `Companion seating requests are managed at Gate A and D supervisor desks.`);
+        servicesEl.innerHTML = currentLanguage === 'es'
+          ? `<strong>Servicios:</strong> Los asientos están reservados adyacentes a todos los espacios para sillas de ruedas.`
+          : (currentLanguage === 'fr'
+              ? `<strong>Services:</strong> Les sièges compagnons sont réservés à côté des emplacements pour fauteuils roulants.`
+              : `<strong>Available Services:</strong> Companion seats are reserved directly adjacent to all wheelchair spaces on all levels.`);
+      }
+      else if (currentProfile === 'asl') {
+        banner.style.borderColor = 'var(--blue)';
+        banner.style.background = 'var(--blue-dim)';
+        titleEl.innerHTML = currentLanguage === 'es' ? '🤟 Soporte de Señas' : (currentLanguage === 'fr' ? '🤟 Traduction ASL' : '🤟 ASL Interpretation Support');
+        
+        let gate = 'Gate D';
+        if (cachedStatus && cachedStatus.closed_gates) {
+          if (cachedStatus.closed_gates.includes('Gate D')) gate = 'Gate A';
+        }
+        badgeEl.textContent = gate;
+        bodyEl.textContent = currentLanguage === 'es'
+          ? `Póngase en contacto con el personal en la ${gate} para solicitar asistencia en lengua de señas.`
+          : (currentLanguage === 'fr'
+              ? `Contactez le personnel de la ${gate} pour toute assistance en langue des signes.`
+              : `Report to Guest Services inside ${gate} to check in for ASL interpretation services.`);
+        servicesEl.innerHTML = currentLanguage === 'es'
+          ? `<strong>Servicios:</strong> Tabletas de traducción digital disponibles.`
+          : (currentLanguage === 'fr'
+              ? `<strong>Services:</strong> Tablettes de traduction numérique disponibles.`
+              : `<strong>Available Services:</strong> Sign language requests are processed in advance, and supervisor desks maintain digital translation tablets.`);
+      }
+      else if (currentProfile === 'walking') {
+        banner.style.borderColor = 'var(--amber)';
+        banner.style.background = 'var(--amber-dim)';
+        titleEl.innerHTML = currentLanguage === 'es' ? '🚶 Distancia Corta' : (currentLanguage === 'fr' ? '🚶 Distance Réduite' : '🚶 Reduced Walking Route');
+        badgeEl.textContent = recommendedGate;
+        bodyEl.textContent = currentLanguage === 'es'
+          ? `Se sugieren lanzaderas en lugar del tren Meadowlands (12 minutos caminando). Entrada más cercana: ${recommendedGate}.`
+          : (currentLanguage === 'fr'
+              ? `Navettes suggérées à la place du train Meadowlands (12 minutes de marche). Entrée la plus proche: ${recommendedGate}.`
+              : `Minimize physical walking. We suggest using shuttle drop-off loops rather than Meadowlands Rail. Enter via: ${recommendedGate}.`);
+        servicesEl.innerHTML = currentLanguage === 'es'
+          ? `<strong>Servicios:</strong> Las lanzaderas se detienen adyacentes a las Puertas A y D.`
+          : (currentLanguage === 'fr'
+              ? `<strong>Services:</strong> Les navettes s'arrêtent à proximité des Portes A et D.`
+              : `<strong>Available Services:</strong> Blue and Green shuttle buses drop off adjacent to Gate D and Gate A. Parking Lot B offers accessible priority spots.`);
+      }
     }
 
     async function handleFormSubmit(event) {
@@ -385,16 +569,6 @@
       const ticket = document.getElementById('planner-ticket').value.trim();
       const kickoff = document.getElementById('planner-kickoff').value;
       const freeText = input.value.trim();
-
-      // Resolve primary accessibility profile based on checkboxes
-      let profile = null;
-      if (document.getElementById('need-wheelchair').checked) {
-        profile = 'wheelchair';
-      } else if (document.getElementById('need-vision').checked) {
-        profile = 'sensory';
-      } else if (document.getElementById('need-hearing').checked) {
-        profile = 'asl';
-      }
 
       // Assemble query question
       let message = freeText;
@@ -425,7 +599,7 @@
           body: JSON.stringify({ 
             message, 
             history: history,
-            accessibility_profile: profile,
+            accessibility_profile: currentProfile !== 'none' ? currentProfile : null,
             language: currentLanguage
           })
         });
@@ -436,7 +610,7 @@
         }
 
         // Display assistant response
-        log.className = "flex-1 flex flex-col text-left space-y-4 p-2 overflow-y-auto";
+        log.className = "flex-1 flex flex-col text-left space-y-4 p-2 overflow-y-auto w-full";
         log.innerHTML = `
           <div class="bg-gray-50 border border-gray-100 rounded-lg p-4 text-sm text-gray-800 leading-relaxed shadow-inner">
             ${data.reply}
@@ -456,6 +630,48 @@
       }
     }
 
+    async function refreshStatus() {
+      try {
+        const res = await fetch('/api/status');
+        if (!res.ok) throw new Error('Status poll failed');
+        const data = await res.json();
+        cachedStatus = data;
+
+        // Update Connection Indicator
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        statusDot.className = 'w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]';
+        statusText.textContent = currentLanguage === 'es' ? 'Conectado' : (currentLanguage === 'fr' ? 'Connecté' : 'Live Connected');
+
+        // Update AI Provider Badge
+        const providerBadge = document.getElementById('providerBadge');
+        if (data.ai_provider && data.ai_provider !== 'demo') {
+          const providerNames = {
+            'anthropic': 'Anthropic Claude',
+            'openai': 'OpenAI GPT',
+            'gemini': 'Google Gemini',
+            'openai_compatible': 'OpenAI-Compatible'
+          };
+          providerBadge.textContent = providerNames[data.ai_provider] || data.ai_provider.toUpperCase();
+          providerBadge.className = 'bg-blue-400/10 border border-blue-400/20 text-blue-300 font-semibold px-2.5 py-1 rounded text-xs tracking-wide uppercase';
+        } else {
+          providerBadge.textContent = currentLanguage === 'es' ? 'Modo Demostración' : (currentLanguage === 'fr' ? 'Mode Démo' : 'Demo Mode (No Key)');
+          providerBadge.className = 'bg-amber-400/10 border border-amber-400/20 text-amber-300 font-semibold px-2.5 py-1 rounded text-xs tracking-wide uppercase';
+        }
+
+        // Update Rationale Explanation
+        document.getElementById('recommendationExplanation').textContent = data.recommendation_reason;
+
+        // Update active profile details banner
+        updateGuidanceBanner();
+      } catch (err) {
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        statusDot.className = 'w-2 h-2 rounded-full bg-red-500 animate-pulse';
+        statusText.textContent = currentLanguage === 'es' ? 'Desconectado' : (currentLanguage === 'fr' ? 'Déconnecté' : 'Disconnected (Retrying)');
+      }
+    }
+
     function toggleA11yMode() {
       const isContrast = document.body.classList.toggle('high-contrast');
       localStorage.setItem('high-contrast-mode', isContrast ? 'enabled' : 'disabled');
@@ -472,6 +688,9 @@
       const savedLang = localStorage.getItem('user-language') || 'en';
       document.getElementById('lang-select').value = savedLang;
       changeLanguage(savedLang);
+
+      refreshStatus();
+      setInterval(refreshStatus, 15000);
     }
 
     initTheme();
