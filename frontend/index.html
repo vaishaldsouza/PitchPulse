@@ -3,1230 +3,478 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Smart Stadium Assistant — FIFA World Cup 2026</title>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<title>StadiumMate — Accessible Stadium Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'sans-serif'],
+        },
+        colors: {
+          stadiumgreen: '#0A5C36',
+          stadiumgreenhover: '#074126',
+        }
+      }
+    }
+  }
+</script>
 <style>
-  :root {
-    --pitch-black: #050d09;
-    --pitch-gradient: linear-gradient(135deg, #0b1f16 0%, #040a07 100%);
-    --panel-navy: rgba(21, 43, 61, 0.55);
-    --panel-navy-light: rgba(27, 54, 77, 0.7);
-    --floodlight: #f5f8f6;
-    --amber: #fbbf24;
-    --amber-dim: rgba(251, 191, 36, 0.1);
-    --turf: #10b981;
-    --turf-dim: rgba(16, 185, 129, 0.1);
-    --danger: #ef4444;
-    --blue: #3b82f6;
-    --blue-dim: rgba(59, 130, 246, 0.1);
-    --line: rgba(245, 248, 246, 0.08);
-    --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    --border-radius: 12px;
-  }
-  
-  [data-theme="light"] {
-    --pitch-black: #f0f4f2;
-    --pitch-gradient: linear-gradient(135deg, #f5f8f7 0%, #e1e9e5 100%);
-    --panel-navy: rgba(255, 255, 255, 0.75);
-    --panel-navy-light: rgba(240, 244, 242, 0.8);
-    --floodlight: #121c17;
-    --amber: #d97706;
-    --amber-dim: rgba(217, 119, 6, 0.1);
-    --turf: #047857;
-    --turf-dim: rgba(4, 120, 87, 0.1);
-    --danger: #dc2626;
-    --blue: #1d4ed8;
-    --blue-dim: rgba(29, 78, 216, 0.1);
-    --line: rgba(18, 28, 23, 0.08);
-    --card-shadow: 0 8px 32px 0 rgba(18, 28, 23, 0.08);
-  }
-  
-  * { box-sizing: border-box; }
-  html, body {
-    margin: 0; height: 100%;
-    background: var(--pitch-gradient);
-    color: var(--floodlight);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    line-height: 1.5;
-  }
-  
-  /* Smooth transitions */
-  html, body, main, header, footer, .panel, .msg, .quick-btn, .action-btn, .preset-btn, .profile-chip, .guidance-banner, .rationale-bar, .status-indicator, .provider-badge, #input, button#send {
-    transition: background 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
-  }
-  
-  body {
-    display: flex; flex-direction: column;
-    background-attachment: fixed;
-  }
-
-  /* ---- LED Ribbon ---- */
-  .ribbon-wrap {
-    background: #020705;
-    border-bottom: 1px solid var(--line);
-    overflow: hidden;
-    white-space: nowrap;
-    padding: 10px 0;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-  }
-  .ribbon {
-    display: inline-flex;
-    gap: 3rem;
-    padding-left: 100%;
-    animation: scroll-left 24s linear infinite;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
-    letter-spacing: 0.04em;
-    font-weight: 500;
-  }
-  .ribbon span.gate-name { color: rgba(245, 248, 246, 0.6); margin-right: 6px; }
-  .ribbon span.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-  .dot.light { background: var(--turf); box-shadow: 0 0 8px var(--turf); }
-  .dot.moderate { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
-  .dot.busy, .dot.very { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
-  @keyframes scroll-left {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .ribbon { animation: none; padding-left: 1rem; }
-  }
-
-  /* ---- Header ---- */
-  header {
-    padding: 1.25rem 2rem;
-    border-bottom: 1px solid var(--line);
-    display: flex; align-items: center; justify-content: space-between;
-    flex-wrap: wrap; gap: 1rem;
-    background: rgba(5, 13, 9, 0.2);
-    backdrop-filter: blur(10px);
-  }
-  [data-theme="light"] header {
-    background: rgba(255, 255, 255, 0.15);
-  }
-  .brand {
-    font-family: 'Oswald', sans-serif;
-    font-weight: 600;
-    font-size: 1.5rem;
-    letter-spacing: 0.01em;
-    text-transform: uppercase;
-    color: var(--floodlight);
-  }
-  .brand .accent { color: var(--amber); }
-  .subtitle {
-    font-size: 0.78rem;
-    color: rgba(245, 248, 246, 0.5);
-    font-family: 'JetBrains Mono', monospace;
-    margin-top: 0.15rem;
-  }
-  [data-theme="light"] .subtitle {
-    color: rgba(18, 28, 23, 0.6);
-  }
-  
-  .header-meta {
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-  }
-  .status-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    color: rgba(245, 248, 246, 0.7);
-    background: rgba(245, 248, 246, 0.04);
-    padding: 0.3rem 0.65rem;
-    border-radius: 6px;
-    border: 1px solid var(--line);
-  }
-  [data-theme="light"] .status-indicator {
-    color: var(--floodlight);
-    background: rgba(18, 28, 23, 0.04);
-  }
-  .status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #555;
-  }
-  .status-dot.connected { background: var(--turf); box-shadow: 0 0 8px var(--turf); }
-  .status-dot.disconnected { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
-  .status-dot.pulsing {
-    animation: pulse 1.2s infinite alternate;
-  }
-  @keyframes pulse {
-    from { opacity: 0.4; }
-    to { opacity: 1; }
-  }
-  .provider-badge {
-    background: rgba(251, 191, 36, 0.08);
-    border: 1px solid rgba(251, 191, 36, 0.2);
-    color: var(--amber);
-    padding: 0.3rem 0.65rem;
-    border-radius: 6px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  
-  .theme-toggle-btn {
-    background: rgba(245, 248, 246, 0.04);
-    border: 1px solid var(--line);
-    color: var(--floodlight);
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.95rem;
-  }
-  .theme-toggle-btn:hover {
-    border-color: var(--amber);
-    background: rgba(251, 191, 36, 0.08);
-    transform: scale(1.05);
-  }
-  .theme-toggle-btn:focus-visible {
-    outline: 2px solid var(--amber);
-    outline-offset: 2px;
-  }
-  [data-theme="light"] .theme-toggle-btn {
-    background: rgba(18, 28, 23, 0.04);
-  }
-
-  /* ---- Main layout ---- */
-  main {
-    flex: 1;
-    display: flex; flex-direction: column;
-    max-width: 1200px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 1.5rem 1.5rem 0;
-    min-height: 0;
-  }
-
-  /* ---- Accessibility Panel ---- */
-  .accessibility-panel {
-    background: var(--panel-navy);
-    border: 1px solid var(--line);
-    border-radius: var(--border-radius);
-    padding: 1rem 1.25rem;
-    margin-bottom: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    backdrop-filter: blur(12px) saturate(180%);
-    box-shadow: var(--card-shadow);
-  }
-  .panel-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: rgba(245, 248, 246, 0.6);
-  }
-  [data-theme="light"] .panel-label {
-    color: rgba(18, 28, 23, 0.6);
-  }
-  .profile-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  .profile-chip {
-    background: rgba(245, 248, 246, 0.04);
-    border: 1px solid var(--line);
-    color: rgba(245, 248, 246, 0.85);
-    font-family: 'Inter', sans-serif;
-    font-size: 0.85rem;
-    padding: 0.5rem 0.9rem;
-    border-radius: 8px;
-    cursor: pointer;
-  }
-  [data-theme="light"] .profile-chip {
-    background: rgba(18, 28, 23, 0.04);
-    color: rgba(18, 28, 23, 0.8);
-  }
-  .profile-chip:hover {
-    border-color: var(--amber);
-    color: var(--amber);
-    transform: translateY(-1px);
-  }
-  .profile-chip:focus-visible {
-    outline: 2px solid var(--amber);
-    outline-offset: 2px;
-  }
-  .profile-chip.active {
-    background: var(--amber);
-    color: #050d09;
-    border-color: var(--amber);
-    font-weight: 600;
-    box-shadow: 0 4px 14px rgba(251, 191, 36, 0.25);
-  }
-  [data-theme="light"] .profile-chip.active {
-    color: #ffffff;
-    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
-  }
-
-  /* ---- Live Rationale Bar ---- */
-  .rationale-bar {
-    background: rgba(16, 185, 129, 0.06);
-    border: 1px solid rgba(16, 185, 129, 0.25);
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    margin-bottom: 1rem;
-    font-size: 0.88rem;
-    color: rgba(245, 248, 246, 0.9);
-    line-height: 1.5;
-  }
-  [data-theme="light"] .rationale-bar {
-    background: rgba(4, 120, 87, 0.04);
-    color: rgba(18, 28, 23, 0.9);
-  }
-
-  /* ---- Guidance Banner ---- */
-  .guidance-banner {
-    background: var(--blue-dim);
-    border: 1px solid var(--blue);
-    border-radius: var(--border-radius);
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    animation: slide-down 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: var(--card-shadow);
-  }
-  [data-theme="light"] .guidance-banner {
-    background: rgba(29, 78, 216, 0.04);
-  }
-  @keyframes slide-down {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .guidance-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .guidance-title {
-    font-family: 'Oswald', sans-serif;
-    text-transform: uppercase;
-    font-size: 1.05rem;
-    letter-spacing: 0.04em;
-    color: #adcaff;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  [data-theme="light"] .guidance-title {
-    color: var(--blue);
-  }
-  .guidance-body {
-    font-size: 0.9rem;
-    line-height: 1.5;
-    color: rgba(245, 248, 246, 0.95);
-  }
-  [data-theme="light"] .guidance-body {
-    color: var(--floodlight);
-  }
-  .guidance-services {
-    font-size: 0.85rem;
-    border-top: 1px solid rgba(59, 130, 246, 0.15);
-    padding-top: 0.65rem;
-    margin-top: 0.4rem;
-    color: rgba(245, 248, 246, 0.75);
-  }
-  [data-theme="light"] .guidance-services {
-    color: rgba(18, 28, 23, 0.75);
-  }
-  .badge {
-    display: inline-block; padding: 0.2rem 0.6rem; border-radius: 99px;
-    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;
-    font-weight: 700;
-    border: 1px solid var(--line);
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .badge.accessible { color: #b9eecb; border-color: var(--turf); background: rgba(16, 185, 129, 0.1); }
-  [data-theme="light"] .badge.accessible { color: var(--turf); }
-  .badge.surged-badge { color: var(--amber); border-color: var(--amber); background: rgba(251, 191, 36, 0.1); }
-  .badge.volunteers-badge { color: #adcaff; border-color: var(--blue); background: rgba(59, 130, 246, 0.1); }
-  [data-theme="light"] .badge.volunteers-badge { color: var(--blue); }
-
-  /* ---- Chat area ---- */
-  #log {
-    flex: 1;
-    overflow-y: auto;
-    display: flex; flex-direction: column;
-    gap: 1.1rem;
-    padding-bottom: 1.25rem;
-  }
-  .msg {
-    max-width: 80%;
-    padding: 0.85rem 1.15rem;
-    line-height: 1.5;
-    font-size: 0.95rem;
-    white-space: pre-wrap;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  }
-  .msg.user {
-    align-self: flex-end;
-    background: linear-gradient(135deg, var(--turf) 0%, #065f46 100%);
-    color: #ffffff;
-    border: 1px solid rgba(16, 185, 129, 0.2);
-    border-radius: 14px 14px 2px 14px;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.15);
-  }
-  [data-theme="light"] .msg.user {
-    background: linear-gradient(135deg, var(--turf) 0%, #047857 100%);
-  }
-  .msg.assistant {
-    align-self: flex-start;
-    background: var(--panel-navy);
-    border: 1px solid var(--line);
-    border-radius: 14px 14px 14px 2px;
-    box-shadow: var(--card-shadow);
-    backdrop-filter: blur(12px) saturate(180%);
-  }
-  .msg.system {
-    align-self: center;
-    color: rgba(245, 248, 246, 0.5);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    background: rgba(245, 248, 246, 0.02);
-    border: 1px solid var(--line);
-    padding: 0.35rem 0.75rem;
-    border-radius: 6px;
-  }
-  [data-theme="light"] .msg.system {
-    color: rgba(18, 28, 23, 0.6);
-    background: rgba(18, 28, 23, 0.02);
-  }
-  .msg.error {
-    align-self: stretch;
-    max-width: 100%;
-    background: rgba(239, 68, 68, 0.06);
-    border: 1px solid var(--danger);
-    color: #fecaca;
-    border-radius: 8px;
-    padding: 1rem;
-    font-size: 0.88rem;
-  }
-  [data-theme="light"] .msg.error {
-    color: var(--danger);
-    background: rgba(220, 38, 38, 0.04);
-  }
-
-  .spinner {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    border: 2px solid rgba(245, 248, 246, 0.2);
-    border-radius: 50%;
-    border-top-color: var(--amber);
-    animation: spin 0.85s linear infinite;
-    margin-right: 8px;
-    vertical-align: middle;
-  }
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-
-  .quick-row {
-    display: flex; gap: 0.5rem; flex-wrap: wrap;
-    padding: 0 0 1rem;
-  }
-  .quick-btn {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    background: rgba(245, 248, 246, 0.02);
-    border: 1px solid var(--line);
-    color: rgba(245, 248, 246, 0.75);
-    padding: 0.45rem 0.85rem;
-    border-radius: 999px;
-    cursor: pointer;
-  }
-  [data-theme="light"] .quick-btn {
-    color: rgba(18, 28, 23, 0.75);
-  }
-  .quick-btn:hover {
-    border-color: var(--amber);
-    color: var(--amber);
-    transform: scale(1.02);
-  }
-
-  form#composer {
-    display: flex; gap: 0.75rem;
-    padding: 1rem 0 1.5rem;
-    border-top: 1px solid var(--line);
-  }
-  #input {
-    flex: 1;
-    background: var(--panel-navy);
-    border: 1px solid var(--line);
-    color: var(--floodlight);
-    border-radius: 8px;
-    padding: 0.85rem 1.1rem;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.95rem;
-    outline: none;
-    box-shadow: var(--card-shadow);
-  }
-  #input:focus {
-    border-color: var(--amber);
-    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
-  }
-  button#send {
-    font-family: 'Oswald', sans-serif;
-    font-weight: 500;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    background: var(--amber);
-    color: #050d09;
-    border: none;
-    padding: 0 1.5rem;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
-  }
-  [data-theme="light"] button#send {
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);
-  }
-  button#send:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-  }
-  button#send:focus-visible, .quick-btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
-  button#send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
-
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
-  .lang-select-wrapper select {
-    background: rgba(245, 248, 246, 0.04);
-    border: 1px solid var(--line);
-    color: var(--floodlight);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.75rem;
-    border-radius: 6px;
-    padding: 0.3rem 0.65rem;
-    outline: none;
-    cursor: pointer;
-  }
-  [data-theme="light"] .lang-select-wrapper select {
-    background: #ffffff;
-    color: var(--floodlight);
-  }
-  body.high-contrast .lang-select-wrapper select {
-    background: #000000 !important;
+  body.high-contrast {
+    background-color: #000000 !important;
     color: #ffffff !important;
+  }
+  body.high-contrast * {
+    background-color: transparent !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  body.high-contrast button, 
+  body.high-contrast select, 
+  body.high-contrast input, 
+  body.high-contrast textarea {
     border: 2px solid #ffffff !important;
+    color: #ffffff !important;
+    background-color: #000000 !important;
+  }
+  body.high-contrast button:hover {
+    background-color: #ffffff !important;
+    color: #000000 !important;
   }
 </style>
 </head>
-<body>
+<body class="bg-[#F8F9FA] text-gray-800 font-sans min-h-screen flex flex-col transition-colors duration-250">
 
-  <div class="ribbon-wrap" aria-label="Live gate congestion ticker">
-    <div class="ribbon" id="ribbon">Loading live gate data…</div>
-  </div>
-
-  <header>
-    <div>
-      <div class="brand">Smart Stadium <span class="accent">Assistant</span></div>
-      <div class="subtitle" id="stadiumName">FIFA World Cup 2026</div>
+  <!-- Header -->
+  <header class="bg-stadiumgreen text-white px-6 py-4 flex flex-wrap items-center justify-between gap-4 border-b-4 border-stadiumgreenhover">
+    <div class="flex items-center">
+      <!-- Soccer Ball Logo SVG -->
+      <svg class="w-10 h-10 mr-3 text-white fill-current" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,1.5A8.48,8.48,0,0,1,16.5,5.1l-1.3,2.2a2.3,2.3,0,0,0-1,.2L12,6.1l-2.2,1.4a2.3,2.3,0,0,0-1-.2L7.5,5.1A8.48,8.48,0,0,1,12,3.5Zm-5,14a8.47,8.47,0,0,1-3.1-4l2.4-1.2A2.46,2.46,0,0,0,7,13.6l.8,2.4Zm8,1.4a8.47,8.47,0,0,1-6,0l1.3-2.2a2.3,2.3,0,0,0,1.2-.2l2.2,1.4ZM20.1,13.5a8.47,8.47,0,0,1-3.1,4l-1.3-2.2a2.3,2.3,0,0,0,.8-1.2l2.4,1.2ZM12,8.8l2.2,1.4a1.8,1.8,0,0,1,.8,1.2L14,13.6l-2,1.2-2-1.2-1-2.2A1.8,1.8,0,0,1,9.8,10.2Z"/>
+      </svg>
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight" id="brand-title">StadiumMate</h1>
+        <p class="text-xs text-gray-200" id="brand-subtitle">Accessible wayfinding for FIFA World Cup 2026</p>
+      </div>
     </div>
     
-    <div class="header-meta">
-      <span class="status-indicator" id="statusIndicator">
-        <span class="status-dot pulsing disconnected" id="statusDot"></span>
-        <span id="statusText">Connecting...</span>
-      </span>
-      <span class="provider-badge" id="providerBadge">Demo Mode</span>
-      <div class="lang-select-wrapper">
-        <label for="lang-select" class="visually-hidden">Choose Language</label>
-        <select id="lang-select" onchange="changeLanguage(this.value)">
-          <option value="en">🌐 EN</option>
-          <option value="es">🌐 ES</option>
-          <option value="fr">🌐 FR</option>
+    <div class="flex items-center gap-4 ml-auto">
+      <div class="flex flex-col text-right">
+        <label for="lang-select" class="text-xs text-gray-200 font-semibold mb-1" id="lang-label">Language</label>
+        <select id="lang-select" onchange="changeLanguage(this.value)" class="text-sm bg-white text-gray-800 border border-gray-300 rounded px-2 py-1 outline-none cursor-pointer focus:ring-1 focus:ring-stadiumgreen w-28">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
         </select>
       </div>
-      <a href="/ops" style="color:var(--amber); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; text-decoration:none; margin-left: 5px;">Ops Console →</a>
-      <button class="theme-toggle-btn" id="a11yModeToggle" aria-label="Toggle high contrast screen reader mode" onclick="toggleA11yMode()" style="margin-left: 5px;">♿</button>
-      <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle light and dark mode" onclick="toggleTheme()" style="margin-left: 5px;">🌙</button>
+      <button onclick="toggleA11yMode()" class="border-2 border-white text-white font-semibold rounded px-4 py-2 hover:bg-white/10 transition text-sm mt-4 self-end" id="a11y-btn">
+        High-visibility / screen-reader mode
+      </button>
     </div>
   </header>
 
-  <main>
-    <div class="workspace-container">
-      
-      <!-- Left Column: Match-Day Trip Planner -->
-      <aside class="trip-planner-panel">
-        <div class="panel-label">🎫 Match-Day Trip Planner</div>
+  <!-- Main Content Grid -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6 min-h-0">
+    
+    <!-- Left Column: Context Form -->
+    <section class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm flex flex-col justify-between">
+      <div>
+        <h2 class="text-lg font-bold text-gray-900 mb-4" id="context-title">Your context</h2>
         
-        <div class="planner-field">
-          <label for="planner-loc">Where are you now?</label>
-          <select id="planner-loc">
-            <option value="Gate A">Gate A (South-West)</option>
-            <option value="Gate B">Gate B (North-West)</option>
-            <option value="Gate C">Gate C (North-East - Inaccessible)</option>
-            <option value="Gate D">Gate D (South-East)</option>
-            <option value="Meadowlands Rail Station">Meadowlands Rail Station</option>
-            <option value="Rideshare Lot F">Rideshare Lot F</option>
-            <option value="Section 100">Section 100 (Lower Bowl)</option>
-            <option value="Section 200">Section 200 (Club Level)</option>
-            <option value="Section 300">Section 300 (Upper Bowl)</option>
-          </select>
-        </div>
-
-        <div class="planner-field">
-          <label for="planner-dest">Where do you want to go?</label>
-          <select id="planner-dest">
-            <option value="Restroom">Nearest Restroom</option>
-            <option value="First Aid Station">First Aid Station</option>
-            <option value="Sensory Room">Sensory Room</option>
-            <option value="Meadowlands Rail Station">Meadowlands Rail Link</option>
-            <option value="Rideshare Lot F">Rideshare Pickup</option>
-            <option value="Gate A">Gate A (South-West Entry)</option>
-            <option value="Gate B">Gate B (North-West Entry)</option>
-            <option value="Gate C">Gate C (North-East Entry)</option>
-            <option value="Gate D">Gate D (South-East Entry)</option>
-          </select>
-        </div>
-
-        <div class="planner-field">
-          <label for="planner-ticket">Ticket Section (Optional)</label>
-          <input type="text" id="planner-ticket" placeholder="e.g. 134" />
-        </div>
-
-        <div class="planner-field">
-          <div class="slider-header">
-            <label for="planner-kickoff">Minutes to Kick-off</label>
-            <span id="kickoff-value">30 mins</span>
+        <form id="context-form" class="space-y-4" onsubmit="handleFormSubmit(event)">
+          <!-- Location field -->
+          <div class="flex flex-col">
+            <label for="planner-loc" class="text-sm font-semibold text-gray-700 mb-1" id="loc-label">Where are you now?</label>
+            <select id="planner-loc" class="border border-gray-300 rounded p-2 outline-none focus:ring-1 focus:ring-stadiumgreen bg-white text-gray-800 text-sm">
+              <option value="Gate A">Gate A (South-West)</option>
+              <option value="Gate B">Gate B (North-West)</option>
+              <option value="Gate C">Gate C (North-East - Inaccessible)</option>
+              <option value="Gate D">Gate D (South-East)</option>
+              <option value="Meadowlands Rail Station">Meadowlands Rail Station</option>
+              <option value="Rideshare Lot F">Rideshare Lot F</option>
+              <option value="Section 100">Section 100 (Lower Bowl)</option>
+              <option value="Section 200">Section 200 (Club Level)</option>
+              <option value="Section 300">Section 300 (Upper Bowl)</option>
+            </select>
           </div>
-          <input type="range" id="planner-kickoff" min="0" max="120" value="30" oninput="updateKickoffLabel(this.value)" />
-        </div>
 
-        <button id="planner-submit-btn" onclick="generateTripQuery()">Generate Route Guidance</button>
-      </aside>
-
-      <!-- Right Column: Chat Assistant Interface -->
-      <section class="chat-interface-panel">
-        
-        <!-- Accessibility Profiles Panel -->
-        <div class="accessibility-panel">
-          <div class="panel-label" id="profileGroupLabel">♿ Select Accessibility Profile:</div>
-          <div class="profile-chips" role="radiogroup" aria-labelledby="profileGroupLabel">
-            <button class="profile-chip active" id="prof-none" role="radio" aria-checked="true" aria-pressed="true" onclick="setProfile('none', this)">None (Standard)</button>
-            <button class="profile-chip" id="prof-wheelchair" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('wheelchair', this)">♿ Step-free / Wheelchair</button>
-            <button class="profile-chip" id="prof-sensory" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('sensory', this)">🎧 Sensory-friendly</button>
-            <button class="profile-chip" id="prof-companion" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('companion', this)">👥 Companion Seating</button>
-            <button class="profile-chip" id="prof-asl" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('asl', this)">🤟 ASL Support</button>
-            <button class="profile-chip" id="prof-walking" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('walking', this)">🚶 Short Distance</button>
+          <!-- Destination field -->
+          <div class="flex flex-col">
+            <label for="planner-dest" class="text-sm font-semibold text-gray-700 mb-1" id="dest-label">Where do you want to go?</label>
+            <select id="planner-dest" class="border border-gray-300 rounded p-2 outline-none focus:ring-1 focus:ring-stadiumgreen bg-white text-gray-800 text-sm">
+              <option value="Restroom">Restroom</option>
+              <option value="First Aid Station">First Aid Station</option>
+              <option value="Sensory Room">Sensory Room</option>
+              <option value="Meadowlands Rail Station">Meadowlands Rail Link</option>
+              <option value="Rideshare Lot F">Rideshare Pickup</option>
+              <option value="Gate A">Gate A (South-West Entry)</option>
+              <option value="Gate B">Gate B (North-West Entry)</option>
+              <option value="Gate C">Gate C (North-East Entry)</option>
+              <option value="Gate D">Gate D (South-East Entry)</option>
+            </select>
           </div>
-        </div>
 
-        <!-- Live Rationale Bar -->
-        <div class="rationale-bar" id="rationaleBar" role="region" aria-live="polite">
-          <strong>💡 Live Gate Suggestion:</strong> <span id="recommendationExplanation">Analyzing best path...</span>
-        </div>
+          <!-- Accessibility Fieldset -->
+          <fieldset class="border border-gray-300 rounded-lg p-4 space-y-2">
+            <legend class="text-xs font-semibold text-gray-600 px-2 ml-2" id="a11y-legend">Accessibility needs</legend>
+            <div class="flex items-center gap-3 text-sm text-gray-800">
+              <input type="checkbox" id="need-wheelchair" name="a11y-needs" class="w-4 h-4 text-stadiumgreen border-gray-300 rounded focus:ring-stadiumgreen cursor-pointer" />
+              <label for="need-wheelchair" class="cursor-pointer" id="need-wheelchair-label">Wheelchair / step-free</label>
+            </div>
+            <div class="flex items-center gap-3 text-sm text-gray-800">
+              <input type="checkbox" id="need-vision" name="a11y-needs" class="w-4 h-4 text-stadiumgreen border-gray-300 rounded focus:ring-stadiumgreen cursor-pointer" />
+              <label for="need-vision" class="cursor-pointer" id="need-vision-label">Low vision / screen reader</label>
+            </div>
+            <div class="flex items-center gap-3 text-sm text-gray-800">
+              <input type="checkbox" id="need-hearing" name="a11y-needs" class="w-4 h-4 text-stadiumgreen border-gray-300 rounded focus:ring-stadiumgreen cursor-pointer" />
+              <label for="need-hearing" class="cursor-pointer" id="need-hearing-label">Deaf / hard of hearing</label>
+            </div>
+          </fieldset>
 
-        <!-- Dynamic Accessibility Guidance Banner -->
-        <div class="guidance-banner" id="guidanceBanner" style="display: none;">
-          <div class="guidance-header">
-            <span class="guidance-title" id="guidanceTitle">Accessibility Guidance</span>
-            <span class="badge" id="guidanceGateBadge">—</span>
+          <!-- Ticket & Kickoff Grid -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col">
+              <label for="planner-ticket" class="text-sm font-semibold text-gray-700 mb-1" id="ticket-label">Ticket section (optional)</label>
+              <input type="text" id="planner-ticket" placeholder="e.g. 134" class="border border-gray-300 rounded p-2 outline-none focus:ring-1 focus:ring-stadiumgreen text-sm text-gray-800 bg-white" />
+            </div>
+            <div class="flex flex-col">
+              <label for="planner-kickoff" class="text-sm font-semibold text-gray-700 mb-1" id="kickoff-label">Minutes to kick-off</label>
+              <input type="number" id="planner-kickoff" value="20" class="border border-gray-300 rounded p-2 outline-none focus:ring-1 focus:ring-stadiumgreen text-sm text-gray-800 bg-white" />
+            </div>
           </div>
-          <div class="guidance-body" id="guidanceBody">—</div>
-          <div class="guidance-services" id="guidanceServices">—</div>
-        </div>
 
-        <div id="log" aria-live="polite">
-          <div class="msg system">Ask about gates, seating, accessibility, transport, or amenities</div>
-          <div class="msg assistant">Welcome! I'm your stadium assistant for today's match. I can help you find the fastest gate, an accessible route, restrooms near your seat, or the best way home after the final whistle. What do you need?</div>
-        </div>
-
-        <div class="quick-row" id="quickRow">
-          <button class="quick-btn" type="button" data-q="Which gate has the shortest line right now?">Shortest line right now</button>
-          <button class="quick-btn" type="button" data-q="I use a wheelchair, what's my best route in?">Wheelchair route</button>
-          <button class="quick-btn" type="button" data-q="How do I get home after the match without a car?">Getting home</button>
-          <button class="quick-btn" type="button" data-q="Where is the nearest quiet/sensory room?">Sensory room</button>
-        </div>
-
-        <form id="composer">
-          <label for="input" class="visually-hidden">Message</label>
-          <input id="input" autocomplete="off" placeholder="Ask in any language… e.g. ¿Dónde está la puerta más rápida?" />
-          <button id="send" type="submit">Send</button>
+          <!-- Free text question -->
+          <div class="flex flex-col">
+            <label for="input" class="text-sm font-semibold text-gray-700 mb-1" id="question-label">Ask a question (optional)</label>
+            <textarea id="input" rows="3" placeholder="e.g. Where is the nearest step-free restroom?" class="border border-gray-300 rounded p-2 outline-none focus:ring-1 focus:ring-stadiumgreen text-sm text-gray-800 bg-white resize-none"></textarea>
+          </div>
         </form>
+      </div>
 
-      </section>
-    </div>
+      <div class="mt-6 space-y-4">
+        <p class="text-xs text-gray-500" id="subtext">Free text is treated as data only and never as instructions.</p>
+        <button form="context-form" type="submit" id="submit-btn" class="w-full bg-stadiumgreen hover:bg-stadiumgreenhover text-white font-bold py-3 px-6 rounded transition text-center text-sm shadow-md">
+          Get help
+        </button>
+      </div>
+    </section>
+    
+    <!-- Right Column: Assistance Display -->
+    <section class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm flex flex-col">
+      <h2 class="text-lg font-bold text-gray-900 mb-4" id="assistance-title">Assistance</h2>
+      
+      <div id="log" class="flex-1 flex flex-col justify-center items-center text-center text-gray-500 space-y-4 min-h-[300px]">
+        <div id="placeholder-msg" class="max-w-md text-sm text-gray-400">
+          Fill in your context and select “Get help”. Your answer appears here.
+        </div>
+      </div>
+    </section>
+    
   </main>
 
-<script>
-  const log = document.getElementById('log');
-  const form = document.getElementById('composer');
-  const input = document.getElementById('input');
-  const sendBtn = document.getElementById('send');
-  const quickRow = document.getElementById('quickRow');
-  let history = [];
-  let currentProfile = 'none';
-  let cachedStatus = null;
-  let currentLanguage = 'en';
+  <!-- Footer -->
+  <footer class="py-6 text-center text-xs text-gray-400 bg-transparent border-t border-gray-200 mt-auto">
+    <div class="max-w-6xl mx-auto px-6 flex justify-between items-center flex-wrap gap-2">
+      <span id="footer-text">MetLife Stadium · New York New Jersey Stadium · East Rutherford, NJ, USA</span>
+      <a href="/ops" style="color:#0A5C36; text-decoration:none;" id="ops-link" class="hover:underline">Ops Console →</a>
+    </div>
+  </footer>
 
-  function addMsg(role, text) {
-    const div = document.createElement('div');
-    div.className = 'msg ' + role;
-    div.textContent = text;
-    log.appendChild(div);
-    log.scrollTop = log.scrollHeight;
-    return div;
-  }
-
-  async function send(message) {
-    if (!message.trim()) return;
-    addMsg('user', message);
-    history.push({ role: 'user', content: message });
-    input.value = '';
-    sendBtn.disabled = true;
-    
-    // Usability: loading state with progress message
-    const thinking = document.createElement('div');
-    thinking.className = 'msg system';
-    thinking.innerHTML = currentLanguage === 'es' 
-      ? '<span class="spinner"></span> El asistente del estadio está calculando la ruta y verificando puertas…'
-      : (currentLanguage === 'fr' 
-          ? '<span class="spinner"></span> L\'assistant calcule l\'itinéraire et vérifie l\'affluence…' 
-          : '<span class="spinner"></span> Stadium Assistant is routing and checking live gate data…');
-    log.appendChild(thinking);
-    log.scrollTop = log.scrollHeight;
-
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          message, 
-          history: history.slice(0, -1),
-          accessibility_profile: currentProfile !== 'none' ? currentProfile : null,
-          language: currentLanguage
-        })
-      });
-      const data = await res.json();
-      thinking.remove();
-      
-      if (!res.ok) {
-        let errMsg = 'Something went wrong.';
-        if (res.status === 502) {
-          errMsg = '⚠️ AI API error: The server encountered an issue connecting to the LLM service (Anthropic Claude/OpenAI) or the API key is expired. Please verify your credentials or use Demo Mode.';
-        } else if (res.status === 400) {
-          errMsg = '⚠️ Request error: ' + (data.error || 'Invalid parameters supplied.');
-        } else {
-          errMsg = '⚠️ Error: ' + (data.error || 'Server returned status ' + res.status);
-        }
-        const errDiv = addMsg('error', errMsg);
-        errDiv.setAttribute('role', 'alert');
-        return;
-      }
-      addMsg('assistant', data.reply);
-      history.push({ role: 'assistant', content: data.reply });
-    } catch (err) {
-      thinking.remove();
-      const errDiv = addMsg('error', '⚠️ Network error: Could not reach the stadium server. Make sure the Flask backend is active on port 5000 and you have a stable network connection.');
-      errDiv.setAttribute('role', 'alert');
-    } finally {
-      sendBtn.disabled = false;
-      input.focus();
-    }
-  }
-
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    send(input.value);
-  });
-
-  quickRow.addEventListener('click', (e) => {
-    const btn = e.target.closest('.quick-btn');
-    if (btn) send(btn.dataset.q);
-  });
-
-  async function refreshStatus() {
-    try {
-      const res = await fetch('/api/status');
-      if (!res.ok) throw new Error('Status poll failed');
-      const data = await res.json();
-      cachedStatus = data;
-      
-      // Update Connection status to active
-      const statusDot = document.getElementById('statusDot');
-      statusDot.className = 'status-dot connected';
-      document.getElementById('statusText').textContent = 'Live Connected';
-      
-      // Update AI provider badge
-      const providerBadge = document.getElementById('providerBadge');
-      if (data.ai_provider && data.ai_provider !== 'demo') {
-        const providerNames = {
-          'anthropic': 'Anthropic Claude',
-          'openai': 'OpenAI GPT',
-          'gemini': 'Google Gemini',
-          'openai_compatible': 'OpenAI-Compatible'
-        };
-        providerBadge.textContent = providerNames[data.ai_provider] || data.ai_provider.toUpperCase();
-        providerBadge.style.color = '#59a2ff';
-        providerBadge.style.background = 'rgba(59, 130, 246, 0.08)';
-        providerBadge.style.borderColor = 'rgba(59, 130, 246, 0.2)';
-      } else {
-        providerBadge.textContent = 'Demo Mode (No Key)';
-        providerBadge.style.color = 'var(--amber)';
-        providerBadge.style.background = 'rgba(255, 182, 39, 0.08)';
-        providerBadge.style.borderColor = 'rgba(255, 182, 39, 0.2)';
-      }
-
-      document.getElementById('stadiumName').textContent = data.stadium_name;
-      
-      // Update Live recommendation explanation bar
-      document.getElementById('recommendationExplanation').textContent = data.recommendation_reason || 'Gates are closed.';
-      
-      // Update LED Ribbon
-      const ribbon = document.getElementById('ribbon');
-      const parts = Object.entries(data.crowd).map(([gate, info]) => {
-        const cls = info.label.replace(' ', '');
-        const isClosed = data.closed_gates && data.closed_gates.includes(gate);
-        const labelText = isClosed ? 'CLOSED' : info.label.toUpperCase();
-        const scoreVal = isClosed ? 0 : info.score;
-        return `<span><span class="dot ${isClosed ? 'busy' : cls}"></span><span class="gate-name">${gate}</span>${labelText} · ${(scoreVal*100).toFixed(0)}%</span>`;
-      });
-      parts.push(`<span><span class="gate-name">Recommended</span><strong style="color:var(--amber)">${data.recommended_gate || 'ESCALATE'}</strong></span>`);
-      ribbon.innerHTML = parts.join('<span style="opacity:.3">//</span>');
-
-      // Update Guidance Banner
-      updateAccessibilityGuidance();
-    } catch (err) {
-      // Usability: show disconnect state clearly
-      const statusDot = document.getElementById('statusDot');
-      statusDot.className = 'status-dot disconnected pulsing';
-      document.getElementById('statusText').textContent = 'Disconnected (Retrying)';
-    }
-  }
-
-  function setProfile(profile, chipElement) {
-    currentProfile = profile;
-    
-    // Update chip styling & ARIA tags
-    document.querySelectorAll('.profile-chip').forEach(chip => {
-      chip.classList.remove('active');
-      chip.setAttribute('aria-checked', 'false');
-      chip.setAttribute('aria-pressed', 'false');
-    });
-    chipElement.classList.add('active');
-    chipElement.setAttribute('aria-checked', 'true');
-    chipElement.setAttribute('aria-pressed', 'true');
-    
-    // Update Guidance UI
-    updateAccessibilityGuidance();
-  }
-
-  function updateAccessibilityGuidance() {
-    const banner = document.getElementById('guidanceBanner');
-    if (currentProfile === 'none') {
-      banner.style.display = 'none';
-      return;
-    }
-    
-    banner.style.display = 'flex';
-    
-    const titleEl = document.getElementById('guidanceTitle');
-    const badgeEl = document.getElementById('guidanceGateBadge');
-    const bodyEl = document.getElementById('guidanceBody');
-    const servicesEl = document.getElementById('guidanceServices');
-    
-    let recommendedGate = 'Gate D';
-    let accessibleGate = 'Gate D';
-    if (cachedStatus) {
-      recommendedGate = cachedStatus.recommended_gate || 'ESCALATE';
-      accessibleGate = cachedStatus.recommended_accessible_gate || 'ESCALATE';
-    }
-    
-    if (currentProfile === 'wheelchair') {
-      banner.style.borderColor = 'var(--turf)';
-      banner.style.background = 'var(--turf-dim)';
-      titleEl.innerHTML = '♿ Step-Free / Wheelchair Routing';
-      titleEl.style.color = '#b9eecb';
-      badgeEl.textContent = accessibleGate;
-      badgeEl.className = 'badge accessible';
-      bodyEl.textContent = `Route via the step-free priority entrance at ${accessibleGate}. Ramps and elevators provide seamless access to the Lower Bowl and Club levels.`;
-      servicesEl.innerHTML = `<strong>Available Services:</strong> Wheelchair rental is located at Guest Services near Gate D.`;
-    }
-    else if (currentProfile === 'sensory') {
-      banner.style.borderColor = 'var(--amber)';
-      banner.style.background = 'var(--amber-dim)';
-      titleEl.innerHTML = '🎧 Sensory-Friendly Guidance';
-      titleEl.style.color = '#ffe4ad';
-      badgeEl.textContent = recommendedGate;
-      badgeEl.className = 'badge surged-badge';
-      bodyEl.textContent = `Avoid sensory overload by entering through ${recommendedGate}, currently the lowest-congestion gate. The quiet sensory room is situated in Zone Z4 near Gate D.`;
-      servicesEl.innerHTML = `<strong>Available Services:</strong> Sensory kits (including noise-canceling headphones and tactile tools) are at Guest Services inside Gate D.`;
-    }
-    else if (currentProfile === 'companion') {
-      banner.style.borderColor = 'var(--blue)';
-      banner.style.background = 'var(--blue-dim)';
-      titleEl.innerHTML = '👥 Companion Seating Support';
-      titleEl.style.color = '#adcaff';
-      
-      let gate = 'Gate D';
-      if (cachedStatus && cachedStatus.closed_gates) {
-        if (cachedStatus.closed_gates.includes('Gate D')) gate = 'Gate A';
-      }
-      badgeEl.textContent = gate;
-      badgeEl.className = 'badge volunteers-badge';
-      bodyEl.textContent = `Seating coordination and companion tickets are verified at the ${gate} Guest Services & Supervisor Desk.`;
-      servicesEl.innerHTML = `<strong>Available Services:</strong> Companion seats are reserved directly adjacent to all wheelchair spaces on all levels.`;
-    }
-    else if (currentProfile === 'asl') {
-      banner.style.borderColor = 'var(--blue)';
-      banner.style.background = 'var(--blue-dim)';
-      titleEl.innerHTML = '🤟 ASL Interpretation Services';
-      titleEl.style.color = '#adcaff';
-      
-      let gate = 'Gate D';
-      if (cachedStatus && cachedStatus.closed_gates) {
-        if (cachedStatus.closed_gates.includes('Gate D')) gate = 'Gate A';
-      }
-      badgeEl.textContent = gate;
-      badgeEl.className = 'badge volunteers-badge';
-      bodyEl.textContent = `Report to Guest Services inside ${gate} to check in for ASL interpretation services or verify requested interpreters.`;
-      servicesEl.innerHTML = `<strong>Available Services:</strong> ASL requests are processed in advance, and supervisor desks maintain digital translation tablets.`;
-    }
-    else if (currentProfile === 'walking') {
-      banner.style.borderColor = 'var(--amber)';
-      banner.style.background = 'var(--amber-dim)';
-      titleEl.innerHTML = '🚶 Reduced Walking Distance Route';
-      titleEl.style.color = '#ffe4ad';
-      badgeEl.textContent = recommendedGate;
-      badgeEl.className = 'badge surged-badge';
-      bodyEl.textContent = `Minimize physical walking. We suggest using shuttle drop-off loops rather than Meadowlands Rail, which requires a 12-minute walk. Enter via closest gate: ${recommendedGate}.`;
-      servicesEl.innerHTML = `<strong>Available Services:</strong> Blue and Green shuttle buses drop off adjacent to Gate D and Gate A. Parking Lot B offers accessible priority spots.`;
-    }
-  }
-
-  const translations = {
-    en: {
-      brand: 'Smart Stadium <span class="accent">Assistant</span>',
-      stadiumName: 'FIFA World Cup 2026',
-      opsLink: 'Ops Console →',
-      plannerTitle: '🎫 Match-Day Trip Planner',
-      plannerLocLabel: 'Where are you now?',
-      plannerDestLabel: 'Where do you want to go?',
-      plannerTicketLabel: 'Ticket Section (Optional)',
-      plannerKickoffLabel: 'Minutes to Kick-off',
-      plannerSubmit: 'Generate Route Guidance',
-      a11yPanelLabel: '♿ Select Accessibility Profile:',
-      chatInitialSys: 'Ask about gates, seating, accessibility, transport, or amenities',
-      chatInitialAssistant: 'Welcome! I\'m your stadium assistant for today\'s match. I can help you find the fastest gate, an accessible route, restrooms near your seat, or the best way home after the final whistle. What do you need?',
-      composerPlaceholder: 'Ask in any language… e.g. Where is the nearest step-free restroom?',
-      sendBtnText: 'Send',
-      recommendationLabel: '💡 Live Gate Suggestion:',
-      guidanceTitle: 'Accessibility Guidance',
-      connecting: 'Connecting...',
-      liveConnected: 'Live Connected',
-      disconnected: 'Disconnected (Retrying)',
-      thinkingMsg: '<span class="spinner"></span> Stadium Assistant is routing and checking live gate data…',
-      quickQueries: [
-        { text: 'Shortest line right now', q: 'Which gate has the shortest line right now?' },
-        { text: 'Wheelchair route', q: 'I use a wheelchair, what\'s my best route in?' },
-        { text: 'Getting home', q: 'How do I get home after the match without a car?' },
-        { text: 'Sensory room', q: 'Where is the nearest quiet/sensory room?' }
-      ],
-      profiles: {
-        none: 'None (Standard)',
-        wheelchair: '♿ Step-free / Wheelchair',
-        sensory: '🎧 Sensory-friendly',
-        companion: '👥 Companion Seating',
-        asl: '🤟 ASL Support',
-        walking: '🚶 Short Distance'
-      },
-      locations: {
-        "Gate A": "Gate A (South-West)",
-        "Gate B": "Gate B (North-West)",
-        "Gate C": "Gate C (North-East - Inaccessible)",
-        "Gate D": "Gate D (South-East)",
-        "Meadowlands Rail Station": "Meadowlands Rail Station",
-        "Rideshare Lot F": "Rideshare Lot F",
-        "Section 100": "Section 100 (Lower Bowl)",
-        "Section 200": "Section 200 (Club Level)",
-        "Section 300": "Section 300 (Upper Bowl)"
-      },
-      destinations: {
-        "Restroom": "Nearest Restroom",
-        "First Aid Station": "First Aid Station",
-        "Sensory Room": "Sensory Room",
-        "Meadowlands Rail Station": "Meadowlands Rail Link",
-        "Rideshare Lot F": "Rideshare Pickup",
-        "Gate A": "Gate A (South-West Entry)",
-        "Gate B": "Gate B (North-West Entry)",
-        "Gate C": "Gate C (North-East Entry)",
-        "Gate D": "Gate D (South-East Entry)"
-      }
-    },
-    es: {
-      brand: 'Smart Stadium <span class="accent">Asistente</span>',
-      stadiumName: 'Copa Mundial de la FIFA 2026',
-      opsLink: 'Consola de Operaciones →',
-      plannerTitle: '🎫 Planificador de Viaje de Partido',
-      plannerLocLabel: '¿Dónde está ahora?',
-      plannerDestLabel: '¿A dónde quiere ir?',
-      plannerTicketLabel: 'Sección de Entrada (Opcional)',
-      plannerKickoffLabel: 'Minutos para el puntapié inicial',
-      plannerSubmit: 'Generar Guía de Ruta',
-      a11yPanelLabel: '♿ Seleccionar Perfil de Accesibilidad:',
-      chatInitialSys: 'Pregunte sobre puertas, asientos, accesibilidad, transporte o servicios',
-      chatInitialAssistant: '¡Bienvenido! Soy tu asistente de estadio para el partido de hoy. Puedo ayudarte a encontrar la puerta más rápida, una ruta accesible, baños cerca de tu asiento o la mejor manera de volver a casa. ¿Qué necesitas?',
-      composerPlaceholder: 'Pregunte en cualquier idioma… por ejemplo, ¿Dónde está el baño sin escalones más cercano?',
-      sendBtnText: 'Enviar',
-      recommendationLabel: '💡 Sugerencia de Puerta en Vivo:',
-      guidanceTitle: 'Guía de Accesibilidad',
-      connecting: 'Conectando...',
-      liveConnected: 'Conectado en Vivo',
-      disconnected: 'Desconectado (Reintentando)',
-      thinkingMsg: '<span class="spinner"></span> El asistente del estadio está calculando la ruta y verificando puertas…',
-      quickQueries: [
-        { text: 'Línea más corta ahora', q: '¿Qué puerta tiene la fila más corta en este momento?' },
-        { text: 'Ruta en silla de ruedas', q: 'Uso silla de ruedas, ¿cuál es mi mejor ruta de entrada?' },
-        { text: 'Regresar a casa', q: '¿Cómo llego a casa después del partido sin coche?' },
-        { text: 'Sala sensorial', q: '¿Dónde está la sala sensorial/tranquila más cercana?' }
-      ],
-      profiles: {
-        none: 'Ninguno (Estándar)',
-        wheelchair: '♿ Silla de ruedas / Sin escalones',
-        sensory: '🎧 Sensorialmente amigable',
-        companion: '👥 Asiento de acompañante',
-        asl: '🤟 Soporte de Lenguaje de Señas',
-        walking: '🚶 Distancia corta'
-      },
-      locations: {
-        "Gate A": "Puerta A (Suroeste)",
-        "Gate B": "Puerta B (Noroeste)",
-        "Gate C": "Puerta C (Nordeste - Inaccesible)",
-        "Gate D": "Puerta D (Sureste)",
-        "Meadowlands Rail Station": "Estación de Tren Meadowlands",
-        "Rideshare Lot F": "Lote de Viaje Compartido F",
-        "Section 100": "Sección 100 (Bajo)",
-        "Section 200": "Sección 200 (Club)",
-        "Section 300": "Sección 300 (Alto)"
-      },
-      destinations: {
-        "Restroom": "Baño más cercano",
-        "First Aid Station": "Puesto de Primeros Auxilios",
-        "Sensory Room": "Sala Sensorial",
-        "Meadowlands Rail Station": "Enlace Ferroviario Meadowlands",
-        "Rideshare Lot F": "Recogida de Viaje Compartido",
-        "Gate A": "Puerta A (Entrada Suroeste)",
-        "Gate B": "Puerta B (Entrada Noroeste)",
-        "Gate C": "Puerta C (Entrada Nordeste)",
-        "Gate D": "Puerta D (Entrada Sureste)"
-      }
-    },
-    fr: {
-      brand: 'Smart Stadium <span class="accent">Assistant</span>',
-      stadiumName: 'Coupe du Monde de la FIFA 2026',
-      opsLink: 'Console des Opérations →',
-      plannerTitle: '🎫 Planificateur de Trajet de Match',
-      plannerLocLabel: 'Où êtes-vous actuellement ?',
-      plannerDestLabel: 'Où voulez-vous aller ?',
-      plannerTicketLabel: 'Section Billet (Optionnel)',
-      plannerKickoffLabel: 'Minutes avant le coup d\'envoi',
-      plannerSubmit: 'Générer l\'Itinéraire',
-      a11yPanelLabel: '♿ Sélectionner un profil d\'accessibilité :',
-      chatInitialSys: 'Renseignez-vous sur les portes, sièges, accessibilité, transports ou services',
-      chatInitialAssistant: 'Bienvenue ! Je suis votre assistant de stade pour le match d\'aujourd\'hui. Je peux vous aider à trouver la porte la plus rapide, un itinéraire accessible, des toilettes près de votre siège ou le meilleur moyen de rentrer chez vous. De quoi avez-vous besoin ?',
-      composerPlaceholder: 'Posez votre question… ex: Où se trouvent les toilettes sans marches les plus proches ?',
-      sendBtnText: 'Envoyer',
-      recommendationLabel: '💡 Suggestion de Porte en Direct:',
-      guidanceTitle: 'Guidance d\'Accessibilité',
-      connecting: 'Connexion...',
-      liveConnected: 'Connecté en Direct',
-      disconnected: 'Déconnecté (Tentative de reconnexion)',
-      thinkingMsg: '<span class="spinner"></span> L\'assistant calcule l\'itinéraire et vérifie l\'affluence…',
-      quickQueries: [
-        { text: 'File la plus courte', q: 'Quelle porte a la file d\'attente la plus courte en ce moment ?' },
-        { text: 'Itinéraire fauteuil', q: 'J\'utilise un fauteuil roulant, quel est mon meilleur itinéraire ?' },
-        { text: 'Rentrer chez soi', q: 'Comment rentrer chez soi après le match sans voiture ?' },
-        { text: 'Espace sensoriel', q: 'Où se trouve l\'espace sensoriel le plus proche ?' }
-      ],
-      profiles: {
-        none: 'Aucun (Standard)',
-        wheelchair: '♿ Accès sans marche / Fauteuil',
-        sensory: '🎧 Sensoriel',
-        companion: '👥 Siège compagnon',
-        asl: '🤟 Traduction ASL',
-        walking: '🚶 Distance réduite'
-      },
-      locations: {
-        "Gate A": "Porte A (Sud-Ouest)",
-        "Gate B": "Porte B (Nord-Ouest)",
-        "Gate C": "Porte C (Nord-Est - Inaccessible)",
-        "Gate D": "Porte D (Sud-Est)",
-        "Meadowlands Rail Station": "Gare de Meadowlands",
-        "Rideshare Lot F": "Parking Covoiturage Lot F",
-        "Section 100": "Section 100 (Tribunes basses)",
-        "Section 200": "Section 200 (Niveau Club)",
-        "Section 300": "Section 300 (Tribunes hautes)"
-      },
-      destinations: {
-        "Restroom": "Toilettes les plus proches",
-        "First Aid Station": "Poste de Secours",
-        "Sensory Room": "Salle Sensorielle",
-        "Meadowlands Rail Station": "Gare Ferroviaire de Meadowlands",
-        "Rideshare Lot F": "Dépose Covoiturage",
-        "Gate A": "Porte A (Entrée Sud-Ouest)",
-        "Gate B": "Porte B (Entrée Nord-Ouest)",
-        "Gate C": "Porte C (Entrée Nord-Est)",
-        "Gate D": "Porte D (Entrée Sud-Est)"
-      }
-    }
-  };
-
-  function changeLanguage(lang) {
-    currentLanguage = lang;
-    localStorage.setItem('user-language', lang);
-    const dict = translations[lang];
-
-    document.querySelector('.brand').innerHTML = dict.brand;
-    document.getElementById('stadiumName').textContent = dict.stadiumName;
-    document.querySelector('header a[href="/ops"]').textContent = dict.opsLink;
-    document.querySelector('.trip-planner-panel .panel-label').textContent = dict.plannerTitle;
-    document.querySelector('.trip-planner-panel label[for="planner-loc"]').textContent = dict.plannerLocLabel;
-    document.querySelector('.trip-planner-panel label[for="planner-dest"]').textContent = dict.plannerDestLabel;
-    document.querySelector('.trip-planner-panel label[for="planner-ticket"]').textContent = dict.plannerTicketLabel;
-    document.querySelector('.trip-planner-panel label[for="planner-kickoff"]').textContent = dict.plannerKickoffLabel;
-    document.getElementById('planner-submit-btn').textContent = dict.plannerSubmit;
-    document.getElementById('profileGroupLabel').textContent = dict.a11yPanelLabel;
-    document.getElementById('rationaleBar').querySelector('strong').textContent = dict.recommendationLabel;
-    document.getElementById('guidanceTitle').textContent = dict.guidanceTitle;
-    document.getElementById('input').placeholder = dict.composerPlaceholder;
-    document.getElementById('send').textContent = dict.sendBtnText;
-
-    const locSelect = document.getElementById('planner-loc');
-    Array.from(locSelect.options).forEach(opt => {
-      if (dict.locations[opt.value]) {
-        opt.textContent = dict.locations[opt.value];
-      }
-    });
-
-    const destSelect = document.getElementById('planner-dest');
-    Array.from(destSelect.options).forEach(opt => {
-      if (dict.destinations[opt.value]) {
-        opt.textContent = dict.destinations[opt.value];
-      }
-    });
-
-    for (const [key, val] of Object.entries(dict.profiles)) {
-      const chip = document.getElementById('prof-' + key);
-      if (chip) chip.textContent = val;
-    }
-
-    const quickButtons = Array.from(quickRow.querySelectorAll('.quick-btn'));
-    dict.quickQueries.forEach((qObj, idx) => {
-      if (quickButtons[idx]) {
-        quickButtons[idx].textContent = qObj.text;
-        quickButtons[idx].dataset.q = qObj.q;
-      }
-    });
-
-    log.innerHTML = `
-      <div class="msg system">${dict.chatInitialSys}</div>
-      <div class="msg assistant">${dict.chatInitialAssistant}</div>
-    `;
-    history = [];
-    
-    // update kickoff values format
-    updateKickoffLabel(document.getElementById('planner-kickoff').value);
-  }
-
-  function updateKickoffLabel(val) {
-    const unit = currentLanguage === 'es' ? ' min' : (currentLanguage === 'fr' ? ' min' : ' mins');
-    document.getElementById('kickoff-value').textContent = val + unit;
-  }
-
-  async function generateTripQuery() {
-    const loc = document.getElementById('planner-loc').value;
-    const dest = document.getElementById('planner-dest').value;
-    const ticket = document.getElementById('planner-ticket').value.trim();
-    const kickoff = document.getElementById('planner-kickoff').value;
-
-    let message = "";
-    if (currentLanguage === "es") {
-      message = `Actualmente estoy en ${loc}`;
-      if (ticket) {
-        message += ` en la Sección ${ticket}`;
-      }
-      message += `. ¿Cómo llego a la/el ${dest} más cercana/o? Quedan ${kickoff} minutos para el puntapié inicial.`;
-    } else if (currentLanguage === "fr") {
-      message = `Je suis actuellement à ${loc}`;
-      if (ticket) {
-        message += ` dans la Section ${ticket}`;
-      }
-      message += `. Comment me rendre à la/au ${dest} le plus proche ? Il reste ${kickoff} minutes avant le coup d'envoi.`;
-    } else {
-      message = `I am currently at ${loc}`;
-      if (ticket) {
-        message += ` in Section ${ticket}`;
-      }
-      message += `. How do I get to the closest ${dest}? There are ${kickoff} minutes remaining before kickoff.`;
-    }
-
-    await send(message);
-  }
-
-  function toggleA11yMode() {
-    const isContrast = document.body.classList.toggle('high-contrast');
-    localStorage.setItem('high-contrast-mode', isContrast ? 'enabled' : 'disabled');
-    
+  <script>
     const log = document.getElementById('log');
-    const msg = document.createElement('div');
-    msg.className = 'msg system';
-    msg.textContent = isContrast ? "High-Contrast Screen Reader Mode Enabled." : "High-Contrast Screen Reader Mode Disabled.";
-    log.appendChild(msg);
-    log.scrollTop = log.scrollHeight;
-  }
+    const input = document.getElementById('input');
+    const submitBtn = document.getElementById('submit-btn');
+    let history = [];
+    let currentLanguage = 'en';
 
-  function initTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeToggleUI(savedTheme);
+    const translations = {
+      en: {
+        brandTitle: 'StadiumMate',
+        brandSubtitle: 'Accessible wayfinding for FIFA World Cup 2026',
+        langLabel: 'Language',
+        a11yBtn: 'High-visibility / screen-reader mode',
+        contextTitle: 'Your context',
+        locLabel: 'Where are you now?',
+        destLabel: 'Where do you want to go?',
+        a11yLegend: 'Accessibility needs',
+        needWheelchair: 'Wheelchair / step-free',
+        needVision: 'Low vision / screen reader',
+        needHearing: 'Deaf / hard of hearing',
+        ticketLabel: 'Ticket section (optional)',
+        kickoffLabel: 'Minutes to kick-off',
+        questionLabel: 'Ask a question (optional)',
+        composerPlaceholder: 'e.g. Where is the nearest step-free restroom?',
+        subtext: 'Free text is treated as data only and never as instructions.',
+        submitBtn: 'Get help',
+        assistanceTitle: 'Assistance',
+        defaultAssistance: 'Fill in your context and select “Get help”. Your answer appears here.',
+        footerText: 'MetLife Stadium · New York New Jersey Stadium · East Rutherford, NJ, USA',
+        opsLink: 'Ops Console →',
+        thinkingMsg: '<div class="text-sm text-stadiumgreen font-semibold"><span class="inline-block w-4 h-4 border-2 border-gray-300 border-t-stadiumgreen rounded-full animate-spin mr-2 align-middle"></span>StadiumMate is calculating directions...</div>',
+        locations: {
+          "Gate A": "Gate A (South-West)",
+          "Gate B": "Gate B (North-West)",
+          "Gate C": "Gate C (North-East - Inaccessible)",
+          "Gate D": "Gate D (South-East)",
+          "Meadowlands Rail Station": "Meadowlands Rail Station",
+          "Rideshare Lot F": "Rideshare Lot F",
+          "Section 100": "Section 100 (Lower Bowl)",
+          "Section 200": "Section 200 (Club Level)",
+          "Section 300": "Section 300 (Upper Bowl)"
+        },
+        destinations: {
+          "Restroom": "Restroom",
+          "First Aid Station": "First Aid Station",
+          "Sensory Room": "Sensory Room",
+          "Meadowlands Rail Station": "Meadowlands Rail Link",
+          "Rideshare Lot F": "Rideshare Pickup",
+          "Gate A": "Gate A (South-West Entry)",
+          "Gate B": "Gate B (North-West Entry)",
+          "Gate C": "Gate C (North-East Entry)",
+          "Gate D": "Gate D (South-East Entry)"
+        }
+      },
+      es: {
+        brandTitle: 'StadiumMate',
+        brandSubtitle: 'Navegación accesible para la Copa Mundial de la FIFA 2026',
+        langLabel: 'Idioma',
+        a11yBtn: 'Modo de alta visibilidad / lector de pantalla',
+        contextTitle: 'Tu contexto',
+        locLabel: '¿Dónde está ahora?',
+        destLabel: '¿A dónde quiere ir?',
+        a11yLegend: 'Necesidades de accesibilidad',
+        needWheelchair: 'Silla de ruedas / Sin escalones',
+        needVision: 'Baja visión / Lector de pantalla',
+        needHearing: 'Sordo / Problemas de audición',
+        ticketLabel: 'Sección de entrada (opcional)',
+        kickoffLabel: 'Minutos para el inicio',
+        questionLabel: 'Hacer una pregunta (opcional)',
+        composerPlaceholder: 'por ejemplo, ¿Dónde está el baño sin escalones más cercano?',
+        subtext: 'El texto libre se trata solo como datos y nunca como instrucciones.',
+        submitBtn: 'Obtener ayuda',
+        assistanceTitle: 'Asistencia',
+        defaultAssistance: 'Complete su contexto y seleccione "Obtener ayuda". Su respuesta aparecerá aquí.',
+        footerText: 'MetLife Stadium · Estadio de Nueva York Nueva Jersey · East Rutherford, NJ, EE. UU.',
+        opsLink: 'Consola de Operaciones →',
+        thinkingMsg: '<div class="text-sm text-stadiumgreen font-semibold"><span class="inline-block w-4 h-4 border-2 border-gray-300 border-t-stadiumgreen rounded-full animate-spin mr-2 align-middle"></span>StadiumMate está calculando indicaciones...</div>',
+        locations: {
+          "Gate A": "Puerta A (Suroeste)",
+          "Gate B": "Puerta B (Noroeste)",
+          "Gate C": "Puerta C (Nordeste - Inaccesible)",
+          "Gate D": "Puerta D (Sureste)",
+          "Meadowlands Rail Station": "Estación de Tren Meadowlands",
+          "Rideshare Lot F": "Lote de Viaje Compartido F",
+          "Section 100": "Sección 100 (Bajo)",
+          "Section 200": "Sección 200 (Club)",
+          "Section 300": "Sección 300 (Alto)"
+        },
+        destinations: {
+          "Restroom": "Baño",
+          "First Aid Station": "Puesto de Primeros Auxilios",
+          "Sensory Room": "Sala Sensorial",
+          "Meadowlands Rail Station": "Enlace Ferroviario Meadowlands",
+          "Rideshare Lot F": "Recogida de Viaje Compartido",
+          "Gate A": "Puerta A (Entrada Suroeste)",
+          "Gate B": "Puerta B (Entrada Noroeste)",
+          "Gate C": "Puerta C (Entrada Nordeste)",
+          "Gate D": "Puerta D (Entrada Sureste)"
+        }
+      },
+      fr: {
+        brandTitle: 'StadiumMate',
+        brandSubtitle: 'Guidage accessible pour la Coupe du Monde de la FIFA 2026',
+        langLabel: 'Langue',
+        a11yBtn: 'Mode haute visibilité / lecteur d\'écran',
+        contextTitle: 'Votre contexte',
+        locLabel: 'Où êtes-vous actuellement ?',
+        destLabel: 'Où voulez-vous aller ?',
+        a11yLegend: 'Besoins d\'accessibilité',
+        needWheelchair: 'Fauteuil roulant / Sans marche',
+        needVision: 'Basse vision / Lecteur d\'écran',
+        needHearing: 'Sourd / Malentendant',
+        ticketLabel: 'Section de billet (optionnel)',
+        kickoffLabel: 'Minutes avant le coup d\'envoi',
+        questionLabel: 'Poser une question (optionnel)',
+        composerPlaceholder: 'ex. Où se trouvent les toilettes sans marches les plus proches ?',
+        subtext: 'Le texte libre est traité uniquement comme données et jamais comme instructions.',
+        submitBtn: 'Obtenir de l\'aide',
+        assistanceTitle: 'Assistance',
+        defaultAssistance: 'Remplissez votre contexte et sélectionnez « Obtenir de l\'aide ». Votre réponse apparaîtra ici.',
+        footerText: 'MetLife Stadium · Stade de New York New Jersey · East Rutherford, NJ, USA',
+        opsLink: 'Console des Opérations →',
+        thinkingMsg: '<div class="text-sm text-stadiumgreen font-semibold"><span class="inline-block w-4 h-4 border-2 border-gray-300 border-t-stadiumgreen rounded-full animate-spin mr-2 align-middle"></span>StadiumMate calcule l\'itinéraire...</div>',
+        locations: {
+          "Gate A": "Porte A (Sud-Ouest)",
+          "Gate B": "Porte B (Nord-Ouest)",
+          "Gate C": "Porte C (Nord-Est - Inaccessible)",
+          "Gate D": "Porte D (Sud-Est)",
+          "Meadowlands Rail Station": "Gare de Meadowlands",
+          "Rideshare Lot F": "Parking Covoiturage Lot F",
+          "Section 100": "Section 100 (Tribunes basses)",
+          "Section 200": "Section 200 (Niveau Club)",
+          "Section 300": "Section 300 (Tribunes hautes)"
+        },
+        destinations: {
+          "Restroom": "Toilettes",
+          "First Aid Station": "Poste de Secours",
+          "Sensory Room": "Salle Sensorielle",
+          "Meadowlands Rail Station": "Gare Ferroviaire de Meadowlands",
+          "Rideshare Lot F": "Dépose Covoiturage",
+          "Gate A": "Porte A (Entrée Sud-Ouest)",
+          "Gate B": "Porte B (Entrée Nord-Ouest)",
+          "Gate C": "Porte C (Entrée Nord-Est)",
+          "Gate D": "Porte D (Entrée Sud-Est)"
+        }
+      }
+    };
 
-    if (localStorage.getItem('high-contrast-mode') === 'enabled') {
-      document.body.classList.add('high-contrast');
+    function changeLanguage(lang) {
+      currentLanguage = lang;
+      localStorage.setItem('user-language', lang);
+      const dict = translations[lang];
+
+      // Update static elements
+      document.getElementById('brand-title').textContent = dict.brandTitle;
+      document.getElementById('brand-subtitle').textContent = dict.brandSubtitle;
+      document.getElementById('lang-label').textContent = dict.langLabel;
+      document.getElementById('a11y-btn').textContent = dict.a11yBtn;
+      document.getElementById('context-title').textContent = dict.contextTitle;
+      document.getElementById('loc-label').textContent = dict.locLabel;
+      document.getElementById('dest-label').textContent = dict.destLabel;
+      document.getElementById('a11y-legend').textContent = dict.a11yLegend;
+      document.getElementById('need-wheelchair-label').textContent = dict.needWheelchair;
+      document.getElementById('need-vision-label').textContent = dict.needVision;
+      document.getElementById('need-hearing-label').textContent = dict.needHearing;
+      document.getElementById('ticket-label').textContent = dict.ticketLabel;
+      document.getElementById('kickoff-label').textContent = dict.kickoffLabel;
+      document.getElementById('question-label').textContent = dict.questionLabel;
+      document.getElementById('input').placeholder = dict.composerPlaceholder;
+      document.getElementById('subtext').textContent = dict.subtext;
+      document.getElementById('submit-btn').textContent = dict.submitBtn;
+      document.getElementById('assistance-title').textContent = dict.assistanceTitle;
+      document.getElementById('footer-text').textContent = dict.footerText;
+      document.getElementById('ops-link').textContent = dict.opsLink;
+
+      // Update options
+      const locSelect = document.getElementById('planner-loc');
+      Array.from(locSelect.options).forEach(opt => {
+        if (dict.locations[opt.value]) opt.textContent = dict.locations[opt.value];
+      });
+
+      const destSelect = document.getElementById('planner-dest');
+      Array.from(destSelect.options).forEach(opt => {
+        if (dict.destinations[opt.value]) opt.textContent = dict.destinations[opt.value];
+      });
+
+      // Clear dynamic response content
+      log.className = "flex-1 flex flex-col justify-center items-center text-center text-gray-500 space-y-4 min-h-[300px]";
+      log.innerHTML = `<div id="placeholder-msg" class="max-w-md text-sm text-gray-400">${dict.defaultAssistance}</div>`;
+      history = [];
     }
-    
-    // Restore language choice
-    const savedLang = localStorage.getItem('user-language') || 'en';
-    document.getElementById('lang-select').value = savedLang;
-    changeLanguage(savedLang);
-  }
 
-  function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    updateThemeToggleUI(newTheme);
-  }
+    async function handleFormSubmit(event) {
+      event.preventDefault();
 
-  function updateThemeToggleUI(theme) {
-    const btn = document.getElementById('themeToggleBtn');
-    if (btn) {
-      btn.textContent = theme === 'dark' ? '🌙' : '☀️';
+      const loc = document.getElementById('planner-loc').value;
+      const dest = document.getElementById('planner-dest').value;
+      const ticket = document.getElementById('planner-ticket').value.trim();
+      const kickoff = document.getElementById('planner-kickoff').value;
+      const freeText = input.value.trim();
+
+      // Resolve primary accessibility profile based on checkboxes
+      let profile = null;
+      if (document.getElementById('need-wheelchair').checked) {
+        profile = 'wheelchair';
+      } else if (document.getElementById('need-vision').checked) {
+        profile = 'sensory';
+      } else if (document.getElementById('need-hearing').checked) {
+        profile = 'asl';
+      }
+
+      // Assemble query question
+      let message = freeText;
+      if (!message) {
+        if (currentLanguage === "es") {
+          message = `Actualmente estoy en ${loc}`;
+          if (ticket) message += ` en la Sección ${ticket}`;
+          message += `. ¿Cómo llego a la/el ${dest} más cercana/o? Quedan ${kickoff} minutos para el partido.`;
+        } else if (currentLanguage === "fr") {
+          message = `Je suis actuellement à ${loc}`;
+          if (ticket) message += ` dans la Section ${ticket}`;
+          message += `. Comment me rendre à la/au ${dest} le plus proche ? Il reste ${kickoff} minutes avant le match.`;
+        } else {
+          message = `I am currently at ${loc}`;
+          if (ticket) message += ` in Section ${ticket}`;
+          message += `. How do I get to the closest ${dest}? There are ${kickoff} minutes remaining before kickoff.`;
+        }
+      }
+
+      submitBtn.disabled = true;
+      log.className = "flex-1 flex flex-col items-center justify-center p-4 min-h-[300px]";
+      log.innerHTML = translations[currentLanguage].thinkingMsg;
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            message, 
+            history: history,
+            accessibility_profile: profile,
+            language: currentLanguage
+          })
+        });
+        const data = await res.json();
+        
+        if (!res.ok) {
+          throw new Error(data.error || 'Server error');
+        }
+
+        // Display assistant response
+        log.className = "flex-1 flex flex-col text-left space-y-4 p-2 overflow-y-auto";
+        log.innerHTML = `
+          <div class="bg-gray-50 border border-gray-100 rounded-lg p-4 text-sm text-gray-800 leading-relaxed shadow-inner">
+            ${data.reply}
+          </div>
+        `;
+        history.push({ role: 'user', content: message });
+        history.push({ role: 'assistant', content: data.reply });
+      } catch (err) {
+        log.className = "flex-1 flex flex-col items-center justify-center text-center p-4 min-h-[300px]";
+        log.innerHTML = `
+          <div class="text-red-600 font-semibold text-sm max-w-sm">
+            ⚠️ ${currentLanguage === 'es' ? 'Error de red. Inténtelo de nuevo.' : (currentLanguage === 'fr' ? 'Erreur de réseau. Veuillez réessayer.' : 'Network error. Please try again.')}
+          </div>
+        `;
+      } finally {
+        submitBtn.disabled = false;
+      }
     }
-  }
 
-  initTheme();
-  refreshStatus();
-  setInterval(refreshStatus, 15000);
-</script>
+    function toggleA11yMode() {
+      const isContrast = document.body.classList.toggle('high-contrast');
+      localStorage.setItem('high-contrast-mode', isContrast ? 'enabled' : 'disabled');
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+
+      if (localStorage.getItem('high-contrast-mode') === 'enabled') {
+        document.body.classList.add('high-contrast');
+      }
+      
+      const savedLang = localStorage.getItem('user-language') || 'en';
+      document.getElementById('lang-select').value = savedLang;
+      changeLanguage(savedLang);
+    }
+
+    initTheme();
+  </script>
 </body>
 </html>
