@@ -102,12 +102,13 @@ pitchpulse/
 │   ├── index.html            # Fan-facing chat assistant (Dark/Light theme)
 │   └── dashboard.html        # Staff operations console at /ops (live gating + alerts)
 ├── tests/
-│   └── test_app.py           # Pytest suite (34 offline unit tests)
+│   └── test_app.py           # Pytest suite (36 offline unit tests)
 ├── .dockerignore             # Excluded files from Docker packaging
 ├── .env.example              # Environment variables template
 ├── .gitignore                # Files excluded from Git tracking
 ├── Dockerfile                # Production container deployment settings for Cloud Run
-└── LICENSE                   # MIT License specification details
+├── LICENSE                   # MIT License specification details
+└── pyproject.toml            # Ruff and Mypy static check configurations
 ```
 
 ## Running it locally
@@ -213,6 +214,6 @@ docker run -p 5000:5000 pitchpulse
 - **Code quality** — Split into small, single-responsibility modules (`app.py`, `assistant.py`, `crowd_sim.py`), completely documentation-commented, with no dependency bloat.
 - **Security** — Hardened with env-based secrets, Pydantic validations, token-bucket rate limiters, downstream key sanitization, and full security headers.
 - **Efficiency** — Lightweight standard-library math operations, memoized static queries, and stateless request cycles.
-- **Testing** — **34 comprehensive unit tests** covering congestion algorithms, volunteer coefficients, incident logs, security origins, and rate limits, running fully offline in under 0.7 seconds.
+- **Testing** — **36 comprehensive unit tests** covering congestion algorithms, volunteer coefficients, incident logs, security origins, and rate limits, running fully offline in under 0.7 seconds.
 - **Accessibility (WCAG 2.1 AA)** — Accessibility is a first-class routing parameter (not an afterthought). Toggling profiles strictly alters advice, the web interfaces are fully keyboard-navigable (`:focus-visible`), utilize ARIA labels, and present textual severity markers so color is never the sole indicator of urgency.
 

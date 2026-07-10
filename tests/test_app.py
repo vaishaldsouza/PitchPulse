@@ -489,3 +489,37 @@ def test_rate_limiter(client, monkeypatch):
     assert "Retry-After" in res_limited.headers
 
 
+def test_pydantic_validation(client):
+    import app as flask_app_module
+    # Clear rate limit bucket to prevent carry-over from test_rate_limiter
+    flask_app_module.IP_LIMITS.clear()
+
+    # 1. Reject invalid accessibility profiles
+    res = client.post("/api/chat", json={"message": "ping", "accessibility_profile": "invalid-profile"})
+    assert res.status_code == 400
+    assert res.get_json()["error"] == "invalid_parameters"
+    
+    # 2. Reject missing chat messages
+    res2 = client.post("/api/chat", json={})
+    assert res2.status_code == 400
+    assert res2.get_json()["error"] == "invalid_parameters"
+    
+    # 3. Reject invalid history roles
+    res3 = client.post("/api/chat", json={"message": "ping", "history": [{"role": "hacker", "content": "malicious"}]})
+    assert res3.status_code == 400
+    assert res3.get_json()["error"] == "invalid_parameters"
+
+    # 4. Reject invalid operations console actions
+    res4 = client.post("/api/ops/incidents", json={"action": "hacked_action"})
+    assert res4.status_code == 400
+    assert res4.get_json()["error"] == "invalid_parameters"
+
+
+def test_cors_headers(client):
+    # Test standard CORS settings (default is '*')
+    res = client.get("/api/status")
+    assert res.headers.get("Access-Control-Allow-Origin") == "*"
+
+
+
+

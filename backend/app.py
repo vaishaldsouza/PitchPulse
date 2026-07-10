@@ -18,10 +18,21 @@ from threading import Lock
 from time import strftime
 from urllib.parse import urlparse
 from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from typing import List, Optional
 
 from assistant import StadiumAssistant, get_live_status
 
 app = Flask(__name__, static_folder="../frontend", static_url_path="")
+
+# Configure CORS based on allowed origins environment variable
+allowed_origins_str = os.environ.get("ALLOWED_ORIGINS", "").strip()
+if allowed_origins_str:
+    origins = [o.strip() for o in allowed_origins_str.split(",") if o.strip()]
+    CORS(app, resources={r"/api/*": {"origins": origins}})
+else:
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Token-bucket rate limiter for API protection
 class TokenBucket:
@@ -68,6 +79,69 @@ def add_security_headers(response):
         "img-src 'self' data:;"
     )
     return response
+
+# Pydantic Input Validation Models
+class ChatHistoryItem(BaseModel):
+    role: str
+    content: str
+
+    @field_validator("role")
+    @classmethod
+    def validate_role(cls, v: str) -> str:
+        if v not in {"user", "assistant"}:
+            raise ValueError("Role must be 'user' or 'assistant'.")
+        return v
+
+class ChatRequest(BaseModel):
+    message: str = Field(..., min_length=1, max_length=2000)
+    history: List[ChatHistoryItem] = Field(default_factory=list)
+    accessibility_profile: Optional[str] = None
+
+    @field_validator("accessibility_profile")
+    @classmethod
+    def validate_profile(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and v not in {"none", "wheelchair", "sensory", "companion", "asl", "walking"}:
+            raise ValueError("Invalid accessibility profile name.")
+        return v
+
+class IncidentRequest(BaseModel):
+    action: str
+    gate: Optional[str] = None
+    enabled: Optional[bool] = None
+    score: Optional[float] = None
+    threshold: Optional[float] = None
+    from_gate: Optional[str] = None
+    to_gate: Optional[str] = None
+
+    @field_validator("action")
+    @classmethod
+    def validate_action(cls, v: str) -> str:
+        valid_actions = {
+            "close_gate", "reopen_gate", "set_transport_delay", 
+            "set_gate_surge", "set_alert_threshold", 
+            "deploy_volunteers", "clear_volunteers", "reset_simulation"
+        }
+        if v not in valid_actions:
+            raise ValueError(f"Unsupported incident action: {v}")
+        return v
+
+def format_validation_error(err: ValidationError):
+    clean_errors = []
+    for e in err.errors():
+        clean_err = {
+            "loc": list(e.get("loc", [])),
+            "msg": e.get("msg"),
+            "type": e.get("type"),
+        }
+        if "input" in e:
+            try:
+                import json
+                json.dumps(e["input"])
+                clean_err["input"] = e["input"]
+            except Exception:
+                clean_err["input"] = str(e["input"])
+        clean_errors.append(clean_err)
+    return jsonify({"error": "invalid_parameters", "detail": clean_errors}), 400
 
 _assistant = None
 SUPPORTED_PROVIDERS = {"demo", "anthropic", "openai", "gemini", "openai_compatible"}
@@ -238,8 +312,13 @@ def ops_dashboard():
 def update_incident():
     """Demo-only staff control for closures and transport disruption exercises."""
     payload = request.get_json(force=True, silent=True) or {}
-    action = payload.get("action")
-    gate = payload.get("gate")
+    try:
+        req = IncidentRequest(**payload)
+    except ValidationError as err:
+        return format_validation_error(err)
+
+    action = req.action
+    gate = req.gate
     valid_gates = set(get_live_status()["crowd"])
 
     if action in {"close_gate", "reopen_gate"}:
@@ -258,7 +337,7 @@ def update_incident():
         record_ops_change(message, "INCIDENT")
         
     elif action == "set_transport_delay":
-        enabled = bool(payload.get("enabled"))
+        enabled = bool(req.enabled)
         with OPS_LOCK:
             OPS_STATE["transport_delay"] = enabled
         record_ops_change(
@@ -268,7 +347,7 @@ def update_incident():
         )
         
     elif action == "set_gate_surge":
-        score = payload.get("score")
+        score = req.score
         if gate not in valid_gates:
             return jsonify({"error": "valid gate is required"}), 400
         with OPS_LOCK:
@@ -276,30 +355,24 @@ def update_incident():
                 OPS_STATE["surged_gates"].pop(gate, None)
                 message = f"Surge Cleared: {gate} congestion surge override removed."
             else:
-                try:
-                    score_val = float(score)
-                    score_val = max(0.0, min(1.0, score_val))
-                except (ValueError, TypeError):
-                    return jsonify({"error": "invalid score value"}), 400
+                score_val = max(0.0, min(1.0, score))
                 OPS_STATE["surged_gates"][gate] = score_val
                 message = f"Surge Simulated: {gate} set to {round(score_val * 100)}% capacity."
         record_ops_change(message, "INCIDENT")
         
     elif action == "set_alert_threshold":
-        threshold = payload.get("threshold")
-        try:
-            threshold_val = float(threshold)
-            threshold_val = max(0.1, min(0.99, threshold_val))
-        except (ValueError, TypeError):
-            return jsonify({"error": "invalid threshold value"}), 400
+        threshold = req.threshold
+        if threshold is None:
+            return jsonify({"error": "threshold is required"}), 400
+        threshold_val = max(0.1, min(0.99, threshold))
         with OPS_LOCK:
             OPS_STATE["alert_threshold"] = threshold_val
             message = f"Alert Threshold Shifted: Operator updated alert limit to {round(threshold_val * 100)}%."
         record_ops_change(message, "STAFF_ACTION")
         
     elif action == "deploy_volunteers":
-        from_gate = payload.get("from_gate")
-        to_gate = payload.get("to_gate")
+        from_gate = req.from_gate
+        to_gate = req.to_gate
         if from_gate not in valid_gates or to_gate not in valid_gates:
             return jsonify({"error": "valid gates required"}), 400
         with OPS_LOCK:
@@ -337,20 +410,20 @@ def update_incident():
 @app.route("/api/chat", methods=["POST"])
 def chat():
     payload = request.get_json(force=True, silent=True) or {}
-    message = (payload.get("message") or "").strip()
-    history = payload.get("history") or []
-    accessibility_profile = payload.get("accessibility_profile")
+    try:
+        req = ChatRequest(**payload)
+    except ValidationError as err:
+        return format_validation_error(err)
 
-    if not message:
-        return jsonify({"error": "message is required"}), 400
-    if len(message) > 2000:
-        return jsonify({"error": "message too long"}), 400
-    # Keep only well-formed history entries to avoid bad input reaching the API
+    message = req.message.strip()
     clean_history = [
-        {"role": h["role"], "content": h["content"]}
-        for h in history
-        if isinstance(h, dict) and h.get("role") in ("user", "assistant") and h.get("content")
-    ][-10:]  # cap context sent per request
+        {"role": h.role, "content": h.content}
+        for h in req.history
+    ][-10:]
+
+    accessibility_profile = req.accessibility_profile
+    if accessibility_profile == "none":
+        accessibility_profile = None
 
     try:
         config = get_server_ai_config()
