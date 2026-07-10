@@ -477,6 +477,169 @@
     clip: rect(0, 0, 0, 0);
     border: 0;
   }
+
+  /* ---- Trip & Route Planner Grid Styles ---- */
+  .workspace-container {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex: 1;
+    min-height: 0;
+  }
+  @media (max-width: 900px) {
+    .workspace-container {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .trip-planner-panel {
+    background: rgba(21, 43, 61, 0.45);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    backdrop-filter: blur(5px);
+    height: fit-content;
+  }
+  [data-theme="light"] .trip-planner-panel {
+    background: rgba(255, 255, 255, 0.8);
+  }
+  .planner-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .planner-field label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(245, 242, 234, 0.75);
+  }
+  [data-theme="light"] .planner-field label {
+    color: rgba(31, 45, 42, 0.75);
+  }
+  .planner-field select, .planner-field input[type="text"] {
+    background: var(--panel-navy);
+    border: 1px solid var(--line);
+    color: var(--floodlight);
+    border-radius: 6px;
+    padding: 0.55rem 0.75rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  [data-theme="light"] .planner-field select, [data-theme="light"] .planner-field input[type="text"] {
+    background: #ffffff;
+    color: var(--deep-navy);
+  }
+  .planner-field select:focus, .planner-field input[type="text"]:focus {
+    border-color: var(--amber);
+  }
+  
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #kickoff-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: bold;
+    color: var(--amber);
+  }
+  
+  .planner-field input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--line);
+    border-radius: 3px;
+    outline: none;
+  }
+  .planner-field input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--amber);
+    cursor: pointer;
+  }
+  
+  button#planner-submit-btn {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    background: var(--amber);
+    color: #241a02;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    transition: opacity 0.15s ease;
+  }
+  [data-theme="light"] button#planner-submit-btn {
+    color: #ffffff;
+  }
+  button#planner-submit-btn:hover {
+    opacity: 0.9;
+  }
+
+  .chat-interface-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1;
+  }
+
+  /* ---- WCAG 2.1 AAA High Contrast Mode Overrides ---- */
+  body.high-contrast {
+    background: #000000 !important;
+    color: #ffffff !important;
+  }
+  body.high-contrast * {
+    background-color: transparent !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  body.high-contrast a, body.high-contrast button, body.high-contrast select, body.high-contrast input {
+    border: 2px solid #ffffff !important;
+    color: #ffffff !important;
+    background-color: #000000 !important;
+  }
+  body.high-contrast button:hover, body.high-contrast button:focus {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  body.high-contrast .active, body.high-contrast .profile-chip.active {
+    background-color: #ffff00 !important;
+    color: #000000 !important;
+    border-color: #ffff00 !important;
+  }
+  body.high-contrast .active *, body.high-contrast .profile-chip.active * {
+    color: #000000 !important;
+  }
+  body.high-contrast .accent {
+    color: #ffff00 !important;
+    font-weight: bold;
+  }
+  body.high-contrast .status-dot.connected {
+    background-color: #00ff00 !important;
+  }
+  body.high-contrast .status-dot.disconnected {
+    background-color: #ff0000 !important;
+  }
 </style>
 </head>
 <body>
@@ -498,56 +661,115 @@
       </span>
       <span class="provider-badge" id="providerBadge">Demo Mode</span>
       <a href="/ops" style="color:var(--amber); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; text-decoration:none; margin-left: 5px;">Ops Console →</a>
+      <button class="theme-toggle-btn" id="a11yModeToggle" aria-label="Toggle high contrast screen reader mode" onclick="toggleA11yMode()" style="margin-left: 5px;">♿</button>
       <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle light and dark mode" onclick="toggleTheme()" style="margin-left: 5px;">🌙</button>
     </div>
   </header>
 
   <main>
-    <!-- Accessibility Profiles Panel -->
-    <div class="accessibility-panel">
-      <div class="panel-label" id="profileGroupLabel">♿ Select Accessibility Profile:</div>
-      <div class="profile-chips" role="radiogroup" aria-labelledby="profileGroupLabel">
-        <button class="profile-chip active" id="prof-none" role="radio" aria-checked="true" aria-pressed="true" onclick="setProfile('none', this)">None (Standard)</button>
-        <button class="profile-chip" id="prof-wheelchair" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('wheelchair', this)">♿ Step-free / Wheelchair</button>
-        <button class="profile-chip" id="prof-sensory" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('sensory', this)">🎧 Sensory-friendly</button>
-        <button class="profile-chip" id="prof-companion" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('companion', this)">👥 Companion Seating</button>
-        <button class="profile-chip" id="prof-asl" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('asl', this)">🤟 ASL Support</button>
-        <button class="profile-chip" id="prof-walking" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('walking', this)">🚶 Short Distance</button>
-      </div>
-    </div>
+    <div class="workspace-container">
+      
+      <!-- Left Column: Match-Day Trip Planner -->
+      <aside class="trip-planner-panel">
+        <div class="panel-label">🎫 Match-Day Trip Planner</div>
+        
+        <div class="planner-field">
+          <label for="planner-loc">Where are you now?</label>
+          <select id="planner-loc">
+            <option value="Gate A">Gate A (South-West)</option>
+            <option value="Gate B">Gate B (North-West)</option>
+            <option value="Gate C">Gate C (North-East - Inaccessible)</option>
+            <option value="Gate D">Gate D (South-East)</option>
+            <option value="Meadowlands Rail Station">Meadowlands Rail Station</option>
+            <option value="Rideshare Lot F">Rideshare Lot F</option>
+            <option value="Section 100">Section 100 (Lower Bowl)</option>
+            <option value="Section 200">Section 200 (Club Level)</option>
+            <option value="Section 300">Section 300 (Upper Bowl)</option>
+          </select>
+        </div>
 
-    <!-- Live Rationale Bar -->
-    <div class="rationale-bar" id="rationaleBar" role="region" aria-live="polite">
-      <strong>💡 Live Gate Suggestion:</strong> <span id="recommendationExplanation">Analyzing best path...</span>
-    </div>
+        <div class="planner-field">
+          <label for="planner-dest">Where do you want to go?</label>
+          <select id="planner-dest">
+            <option value="Restroom">Nearest Restroom</option>
+            <option value="First Aid Station">First Aid Station</option>
+            <option value="Sensory Room">Sensory Room</option>
+            <option value="Meadowlands Rail Station">Meadowlands Rail Link</option>
+            <option value="Rideshare Lot F">Rideshare Pickup</option>
+            <option value="Gate A">Gate A (South-West Entry)</option>
+            <option value="Gate B">Gate B (North-West Entry)</option>
+            <option value="Gate C">Gate C (North-East Entry)</option>
+            <option value="Gate D">Gate D (South-East Entry)</option>
+          </select>
+        </div>
 
-    <!-- Dynamic Accessibility Guidance Banner -->
-    <div class="guidance-banner" id="guidanceBanner" style="display: none;">
-      <div class="guidance-header">
-        <span class="guidance-title" id="guidanceTitle">Accessibility Guidance</span>
-        <span class="badge" id="guidanceGateBadge">—</span>
-      </div>
-      <div class="guidance-body" id="guidanceBody">—</div>
-      <div class="guidance-services" id="guidanceServices">—</div>
-    </div>
+        <div class="planner-field">
+          <label for="planner-ticket">Ticket Section (Optional)</label>
+          <input type="text" id="planner-ticket" placeholder="e.g. 134" />
+        </div>
 
-    <div id="log" aria-live="polite">
-      <div class="msg system">Ask about gates, seating, accessibility, transport, or amenities</div>
-      <div class="msg assistant">Welcome! I'm your stadium assistant for today's match. I can help you find the fastest gate, an accessible route, restrooms near your seat, or the best way home after the final whistle. What do you need?</div>
-    </div>
+        <div class="planner-field">
+          <div class="slider-header">
+            <label for="planner-kickoff">Minutes to Kick-off</label>
+            <span id="kickoff-value">30 mins</span>
+          </div>
+          <input type="range" id="planner-kickoff" min="0" max="120" value="30" oninput="updateKickoffLabel(this.value)" />
+        </div>
 
-    <div class="quick-row" id="quickRow">
-      <button class="quick-btn" type="button" data-q="Which gate has the shortest line right now?">Shortest line right now</button>
-      <button class="quick-btn" type="button" data-q="I use a wheelchair, what's my best route in?">Wheelchair route</button>
-      <button class="quick-btn" type="button" data-q="How do I get home after the match without a car?">Getting home</button>
-      <button class="quick-btn" type="button" data-q="Where is the nearest quiet/sensory room?">Sensory room</button>
-    </div>
+        <button id="planner-submit-btn" onclick="generateTripQuery()">Generate Route Guidance</button>
+      </aside>
 
-    <form id="composer">
-      <label for="input" class="visually-hidden">Message</label>
-      <input id="input" autocomplete="off" placeholder="Ask in any language… e.g. ¿Dónde está la puerta más rápida?" />
-      <button id="send" type="submit">Send</button>
-    </form>
+      <!-- Right Column: Chat Assistant Interface -->
+      <section class="chat-interface-panel">
+        
+        <!-- Accessibility Profiles Panel -->
+        <div class="accessibility-panel">
+          <div class="panel-label" id="profileGroupLabel">♿ Select Accessibility Profile:</div>
+          <div class="profile-chips" role="radiogroup" aria-labelledby="profileGroupLabel">
+            <button class="profile-chip active" id="prof-none" role="radio" aria-checked="true" aria-pressed="true" onclick="setProfile('none', this)">None (Standard)</button>
+            <button class="profile-chip" id="prof-wheelchair" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('wheelchair', this)">♿ Step-free / Wheelchair</button>
+            <button class="profile-chip" id="prof-sensory" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('sensory', this)">🎧 Sensory-friendly</button>
+            <button class="profile-chip" id="prof-companion" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('companion', this)">👥 Companion Seating</button>
+            <button class="profile-chip" id="prof-asl" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('asl', this)">🤟 ASL Support</button>
+            <button class="profile-chip" id="prof-walking" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('walking', this)">🚶 Short Distance</button>
+          </div>
+        </div>
+
+        <!-- Live Rationale Bar -->
+        <div class="rationale-bar" id="rationaleBar" role="region" aria-live="polite">
+          <strong>💡 Live Gate Suggestion:</strong> <span id="recommendationExplanation">Analyzing best path...</span>
+        </div>
+
+        <!-- Dynamic Accessibility Guidance Banner -->
+        <div class="guidance-banner" id="guidanceBanner" style="display: none;">
+          <div class="guidance-header">
+            <span class="guidance-title" id="guidanceTitle">Accessibility Guidance</span>
+            <span class="badge" id="guidanceGateBadge">—</span>
+          </div>
+          <div class="guidance-body" id="guidanceBody">—</div>
+          <div class="guidance-services" id="guidanceServices">—</div>
+        </div>
+
+        <div id="log" aria-live="polite">
+          <div class="msg system">Ask about gates, seating, accessibility, transport, or amenities</div>
+          <div class="msg assistant">Welcome! I'm your stadium assistant for today's match. I can help you find the fastest gate, an accessible route, restrooms near your seat, or the best way home after the final whistle. What do you need?</div>
+        </div>
+
+        <div class="quick-row" id="quickRow">
+          <button class="quick-btn" type="button" data-q="Which gate has the shortest line right now?">Shortest line right now</button>
+          <button class="quick-btn" type="button" data-q="I use a wheelchair, what's my best route in?">Wheelchair route</button>
+          <button class="quick-btn" type="button" data-q="How do I get home after the match without a car?">Getting home</button>
+          <button class="quick-btn" type="button" data-q="Where is the nearest quiet/sensory room?">Sensory room</button>
+        </div>
+
+        <form id="composer">
+          <label for="input" class="visually-hidden">Message</label>
+          <input id="input" autocomplete="off" placeholder="Ask in any language… e.g. ¿Dónde está la puerta más rápida?" />
+          <button id="send" type="submit">Send</button>
+        </form>
+
+      </section>
+    </div>
   </main>
 
 <script>
@@ -790,10 +1012,47 @@
     }
   }
 
+  function updateKickoffLabel(val) {
+    document.getElementById('kickoff-value').textContent = val + ' mins';
+  }
+
+  async function generateTripQuery() {
+    const loc = document.getElementById('planner-loc').value;
+    const dest = document.getElementById('planner-dest').value;
+    const ticket = document.getElementById('planner-ticket').value.trim();
+    const kickoff = document.getElementById('planner-kickoff').value;
+
+    let message = `I am currently at ${loc}`;
+    if (ticket) {
+      message += ` in Section ${ticket}`;
+    }
+    message += `. How do I get to the closest ${dest}? There are ${kickoff} minutes remaining before kickoff.`;
+
+    await send(message);
+  }
+
+  function toggleA11yMode() {
+    const isContrast = document.body.classList.toggle('high-contrast');
+    localStorage.setItem('high-contrast-mode', isContrast ? 'enabled' : 'disabled');
+    
+    // Announce to screen reader
+    const log = document.getElementById('log');
+    const msg = document.createElement('div');
+    msg.className = 'msg system';
+    msg.textContent = isContrast ? "High-Contrast Screen Reader Mode Enabled." : "High-Contrast Screen Reader Mode Disabled.";
+    log.appendChild(msg);
+    log.scrollTop = log.scrollHeight;
+  }
+
   function initTheme() {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
     updateThemeToggleUI(savedTheme);
+
+    // Initialize high-contrast accessibility mode
+    if (localStorage.getItem('high-contrast-mode') === 'enabled') {
+      document.body.classList.add('high-contrast');
+    }
   }
 
   function toggleTheme() {
