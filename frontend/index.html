@@ -21,6 +21,21 @@
     --blue-dim: rgba(59, 130, 246, 0.12);
     --line: rgba(245,242,234,0.12);
   }
+  
+  [data-theme="light"] {
+    --pitch-black: #F4F6F5;
+    --panel-navy: #FFFFFF;
+    --panel-navy-light: #EBF0EE;
+    --floodlight: #1F2D2A;
+    --amber: #D97706;
+    --amber-dim: rgba(217, 119, 6, 0.12);
+    --turf: #15803D;
+    --turf-dim: rgba(21, 128, 61, 0.12);
+    --danger: #DC2626;
+    --blue: #1D4ED8;
+    --line: rgba(31, 45, 42, 0.12);
+  }
+  
   * { box-sizing: border-box; }
   html, body {
     margin: 0; height: 100%;
@@ -28,6 +43,12 @@
     color: var(--floodlight);
     font-family: 'Inter', sans-serif;
   }
+  
+  /* Smooth theme transitions */
+  html, body, main, header, footer, .panel, .msg, .quick-btn, .action-btn, .preset-btn, .profile-chip, .guidance-banner, .rationale-bar, .status-indicator, .provider-badge, #input, button#send {
+    transition: background 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  }
+
   body {
     display: flex; flex-direction: column;
     background-image:
@@ -98,6 +119,10 @@
     border-radius: 4px;
     border: 1px solid var(--line);
   }
+  [data-theme="light"] .status-indicator {
+    color: var(--floodlight);
+    background: rgba(31, 45, 42, 0.05);
+  }
   .status-dot {
     width: 8px;
     height: 8px;
@@ -123,6 +148,32 @@
     text-transform: uppercase;
     letter-spacing: 0.03em;
   }
+  
+  .theme-toggle-btn {
+    background: rgba(245, 242, 234, 0.05);
+    border: 1px solid var(--line);
+    color: var(--floodlight);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+  }
+  .theme-toggle-btn:hover {
+    border-color: var(--amber);
+    background: rgba(255, 182, 39, 0.08);
+  }
+  .theme-toggle-btn:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+  [data-theme="light"] .theme-toggle-btn {
+    background: rgba(31, 45, 42, 0.05);
+  }
 
   /* ---- Main layout ---- */
   main {
@@ -147,12 +198,18 @@
     gap: 0.6rem;
     backdrop-filter: blur(5px);
   }
+  [data-theme="light"] .accessibility-panel {
+    background: rgba(255, 255, 255, 0.8);
+  }
   .panel-label {
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: rgba(245, 242, 234, 0.65);
+  }
+  [data-theme="light"] .panel-label {
+    color: rgba(31, 45, 42, 0.65);
   }
   .profile-chips {
     display: flex;
@@ -170,6 +227,10 @@
     cursor: pointer;
     transition: all 0.2s ease;
   }
+  [data-theme="light"] .profile-chip {
+    background: rgba(31, 45, 42, 0.04);
+    color: rgba(31, 45, 42, 0.8);
+  }
   .profile-chip:hover {
     border-color: var(--amber);
     color: var(--amber);
@@ -185,6 +246,10 @@
     font-weight: 600;
     box-shadow: 0 0 10px rgba(255, 182, 39, 0.25);
   }
+  [data-theme="light"] .profile-chip.active {
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(217, 119, 6, 0.25);
+  }
 
   /* ---- Live Rationale Bar ---- */
   .rationale-bar {
@@ -196,6 +261,10 @@
     font-size: 0.82rem;
     color: rgba(245, 242, 234, 0.88);
     line-height: 1.45;
+  }
+  [data-theme="light"] .rationale-bar {
+    background: rgba(255, 255, 255, 0.7);
+    color: rgba(31, 45, 42, 0.88);
   }
 
   /* ---- Guidance Banner ---- */
@@ -209,6 +278,9 @@
     flex-direction: column;
     gap: 0.5rem;
     animation: slide-down 0.2s ease-out;
+  }
+  [data-theme="light"] .guidance-banner {
+    background: rgba(29, 78, 216, 0.05);
   }
   @keyframes slide-down {
     from { opacity: 0; transform: translateY(-8px); }
@@ -229,10 +301,16 @@
     align-items: center;
     gap: 0.4rem;
   }
+  [data-theme="light"] .guidance-title {
+    color: var(--blue);
+  }
   .guidance-body {
     font-size: 0.85rem;
     line-height: 1.45;
     color: rgba(245, 242, 234, 0.9);
+  }
+  [data-theme="light"] .guidance-body {
+    color: var(--floodlight);
   }
   .guidance-services {
     font-size: 0.8rem;
@@ -240,6 +318,9 @@
     padding-top: 0.5rem;
     margin-top: 0.25rem;
     color: rgba(245, 242, 234, 0.7);
+  }
+  [data-theme="light"] .guidance-services {
+    color: rgba(31, 45, 42, 0.7);
   }
   .badge {
     display: inline-block; padding: 0.15rem 0.45rem; border-radius: 99px;
@@ -249,8 +330,10 @@
     font-family: 'JetBrains Mono', monospace;
   }
   .badge.accessible { color: #b9eecb; border-color: var(--turf); background: rgba(46, 139, 87, 0.05); }
+  [data-theme="light"] .badge.accessible { color: var(--turf); }
   .badge.surged-badge { color: var(--amber); border-color: var(--amber); background: rgba(255, 182, 39, 0.05); }
   .badge.volunteers-badge { color: #adcaff; border-color: var(--blue); background: rgba(59, 130, 246, 0.05); }
+  [data-theme="light"] .badge.volunteers-badge { color: var(--blue); }
 
   /* ---- Chat area ---- */
   #log {
@@ -275,11 +358,15 @@
     border: 1px solid rgba(46, 139, 87, 0.3);
     border-radius: 10px 10px 2px 10px;
   }
+  [data-theme="light"] .msg.user {
+    border-color: rgba(21, 128, 61, 0.3);
+  }
   .msg.assistant {
     align-self: flex-start;
     background: var(--panel-navy);
     border: 1px solid var(--line);
     border-radius: 10px 10px 10px 2px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
   }
   .msg.system {
     align-self: center;
@@ -288,6 +375,9 @@
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
+  }
+  [data-theme="light"] .msg.system {
+    color: rgba(31, 45, 42, 0.55);
   }
   .msg.error {
     align-self: stretch;
@@ -298,6 +388,10 @@
     border-radius: 8px;
     padding: 0.85rem 1rem;
     font-size: 0.85rem;
+  }
+  [data-theme="light"] .msg.error {
+    color: var(--danger);
+    background: rgba(220, 38, 38, 0.05);
   }
 
   .spinner {
@@ -330,6 +424,9 @@
     cursor: pointer;
     transition: border-color .15s, color .15s;
   }
+  [data-theme="light"] .quick-btn {
+    color: rgba(31, 45, 42, 0.75);
+  }
   .quick-btn:hover { border-color: var(--amber); color: var(--amber); }
 
   form#composer {
@@ -360,6 +457,9 @@
     border-radius: 8px;
     cursor: pointer;
     font-size: 0.88rem;
+  }
+  [data-theme="light"] button#send {
+    color: #ffffff;
   }
   button#send:focus-visible, .quick-btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
   button#send:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -398,6 +498,7 @@
       </span>
       <span class="provider-badge" id="providerBadge">Demo Mode</span>
       <a href="/ops" style="color:var(--amber); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; text-decoration:none; margin-left: 5px;">Ops Console →</a>
+      <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle light and dark mode" onclick="toggleTheme()" style="margin-left: 5px;">🌙</button>
     </div>
   </header>
 
@@ -689,6 +790,28 @@
     }
   }
 
+  function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeToggleUI(savedTheme);
+  }
+
+  function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeToggleUI(newTheme);
+  }
+
+  function updateThemeToggleUI(theme) {
+    const btn = document.getElementById('themeToggleBtn');
+    if (btn) {
+      btn.textContent = theme === 'dark' ? '🌙' : '☀️';
+    }
+  }
+
+  initTheme();
   refreshStatus();
   setInterval(refreshStatus, 15000);
 </script>
