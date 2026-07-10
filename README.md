@@ -90,22 +90,24 @@ numbers rather than a conversational answer.
 ### Project structure
 
 ```
-backend/
-  app.py            Flask routes: chat, status, health
-  assistant.py      Builds the grounded system prompt, calls Claude
-  crowd_sim.py      Deterministic live-crowd simulation + gate recommendation
-  data/stadium.json Venue knowledge base (gates, zones, transport, accessibility)
-  requirements.txt  Python libraries & dependencies
-frontend/
-  index.html        Fan-facing assistant UI (Dark/Light glassmorphism)
-  dashboard.html    Staff-facing ops console at /ops (alerts & surges)
-tests/
-  test_app.py       Unit tests for crowd logic & security bounds (34 tests, no network)
-.dockerignore       Files excluded from Docker builds
-.env.example        Environment configuration template
-.gitignore          Paths excluded from Git tracking
-Dockerfile          Container deployment configuration
-LICENSE             MIT License specification
+pitchpulse/
+├── backend/
+│   ├── data/
+│   │   └── stadium.json      # Static stadium knowledge base (zones, transport, access)
+│   ├── app.py                # Flask server, rate limiter, security headers
+│   ├── assistant.py          # Grounded system prompt coord & credential sanitizer
+│   ├── crowd_sim.py          # Turnstile oscillators, Dijkstra pathfinder, staff weights
+│   └── requirements.txt      # Python libraries & project dependencies
+├── frontend/
+│   ├── index.html            # Fan-facing chat assistant (Dark/Light theme)
+│   └── dashboard.html        # Staff operations console at /ops (live gating + alerts)
+├── tests/
+│   └── test_app.py           # Pytest suite (34 offline unit tests)
+├── .dockerignore             # Excluded files from Docker packaging
+├── .env.example              # Environment variables template
+├── .gitignore                # Files excluded from Git tracking
+├── Dockerfile                # Production container deployment settings for Cloud Run
+└── LICENSE                   # MIT License specification details
 ```
 
 ## Running it locally
