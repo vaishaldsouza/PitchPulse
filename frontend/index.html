@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Smart Stadium Assistant — FIFA World Cup 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pitch-black: #0B1F17;
+    --panel-navy: #152B3D;
+    --panel-navy-light: #1b364d;
+    --floodlight: #F5F2EA;
+    --amber: #FFB627;
+    --amber-dim: rgba(255, 182, 39, 0.12);
+    --turf: #2E8B57;
+    --turf-dim: rgba(46, 139, 87, 0.12);
+    --danger: #E85D4C;
+    --blue: #3b82f6;
+    --blue-dim: rgba(59, 130, 246, 0.12);
+    --line: rgba(245,242,234,0.12);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%;
+    background: var(--pitch-black);
+    color: var(--floodlight);
+    font-family: 'Inter', sans-serif;
+  }
+  body {
+    display: flex; flex-direction: column;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 78px, rgba(255,255,255,0.015) 78px, rgba(255,255,255,0.015) 79px);
+  }
+
+  /* ---- LED Ribbon ---- */
+  .ribbon-wrap {
+    background: #050D09;
+    border-bottom: 2px solid var(--turf-dim);
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 7px 0;
+  }
+  .ribbon {
+    display: inline-flex;
+    gap: 2.5rem;
+    padding-left: 100%;
+    animation: scroll-left 26s linear infinite;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+  }
+  .ribbon span.gate-name { color: rgba(245,242,234,0.55); margin-right: 6px; }
+  .ribbon span.dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+  .dot.light { background: var(--turf); box-shadow: 0 0 6px var(--turf); }
+  .dot.moderate { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+  .dot.busy, .dot.very { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+  @keyframes scroll-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ribbon { animation: none; padding-left: 1rem; }
+  }
+
+  /* ---- Header ---- */
+  header {
+    padding: 1.1rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: baseline; justify-content: space-between;
+    flex-wrap: wrap; gap: 1rem;
+  }
+  .brand {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 1.35rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--floodlight);
+  }
+  .brand .accent { color: var(--amber); }
+  
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+  }
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: rgba(245, 242, 234, 0.65);
+    background: rgba(245, 242, 234, 0.05);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+  }
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #555;
+  }
+  .status-dot.connected { background: var(--turf); box-shadow: 0 0 6px var(--turf); }
+  .status-dot.disconnected { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+  .status-dot.pulsing {
+    animation: pulse 1.2s infinite alternate;
+  }
+  @keyframes pulse {
+    from { opacity: 0.4; }
+    to { opacity: 1; }
+  }
+  .provider-badge {
+    background: rgba(255, 182, 39, 0.08);
+    border: 1px solid rgba(255, 182, 39, 0.2);
+    color: var(--amber);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  /* ---- Main layout ---- */
+  main {
+    flex: 1;
+    display: flex; flex-direction: column;
+    max-width: 760px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1.25rem 1.25rem 0;
+    min-height: 0;
+  }
+
+  /* ---- Accessibility Panel ---- */
+  .accessibility-panel {
+    background: rgba(21, 43, 61, 0.45);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    backdrop-filter: blur(5px);
+  }
+  .panel-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(245, 242, 234, 0.65);
+  }
+  .profile-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+  .profile-chip {
+    background: rgba(245, 242, 234, 0.05);
+    border: 1px solid var(--line);
+    color: rgba(245, 242, 234, 0.8);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .profile-chip:hover {
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+  .profile-chip:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+  .profile-chip.active {
+    background: var(--amber);
+    color: #0b1f17;
+    border-color: var(--amber);
+    font-weight: 600;
+    box-shadow: 0 0 10px rgba(255, 182, 39, 0.25);
+  }
+
+  /* ---- Live Rationale Bar ---- */
+  .rationale-bar {
+    background: rgba(21, 43, 61, 0.35);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.65rem 0.9rem;
+    margin-bottom: 1rem;
+    font-size: 0.82rem;
+    color: rgba(245, 242, 234, 0.88);
+    line-height: 1.45;
+  }
+
+  /* ---- Guidance Banner ---- */
+  .guidance-banner {
+    background: var(--blue-dim);
+    border: 1px solid var(--blue);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    animation: slide-down 0.2s ease-out;
+  }
+  @keyframes slide-down {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .guidance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .guidance-title {
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    color: #adcaff;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .guidance-body {
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: rgba(245, 242, 234, 0.9);
+  }
+  .guidance-services {
+    font-size: 0.8rem;
+    border-top: 1px solid rgba(59, 130, 246, 0.2);
+    padding-top: 0.5rem;
+    margin-top: 0.25rem;
+    color: rgba(245, 242, 234, 0.7);
+  }
+  .badge {
+    display: inline-block; padding: 0.15rem 0.45rem; border-radius: 99px;
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;
+    font-weight: 700;
+    border: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .badge.accessible { color: #b9eecb; border-color: var(--turf); background: rgba(46, 139, 87, 0.05); }
+  .badge.surged-badge { color: var(--amber); border-color: var(--amber); background: rgba(255, 182, 39, 0.05); }
+  .badge.volunteers-badge { color: #adcaff; border-color: var(--blue); background: rgba(59, 130, 246, 0.05); }
+
+  /* ---- Chat area ---- */
+  #log {
+    flex: 1;
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+    gap: 0.9rem;
+    padding-bottom: 1rem;
+  }
+  .msg {
+    max-width: 82%;
+    padding: 0.7rem 0.95rem;
+    border-radius: 3px;
+    line-height: 1.45;
+    font-size: 0.94rem;
+    white-space: pre-wrap;
+  }
+  .msg.user {
+    align-self: flex-end;
+    background: var(--turf-dim);
+    color: var(--floodlight);
+    border: 1px solid rgba(46, 139, 87, 0.3);
+    border-radius: 10px 10px 2px 10px;
+  }
+  .msg.assistant {
+    align-self: flex-start;
+    background: var(--panel-navy);
+    border: 1px solid var(--line);
+    border-radius: 10px 10px 10px 2px;
+  }
+  .msg.system {
+    align-self: center;
+    color: rgba(245,242,234,0.55);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .msg.error {
+    align-self: stretch;
+    max-width: 100%;
+    background: rgba(232, 93, 76, 0.08);
+    border: 1px solid var(--danger);
+    color: #ffc4be;
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(245, 242, 234, 0.2);
+    border-radius: 50%;
+    border-top-color: var(--amber);
+    animation: spin 0.85s linear infinite;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .quick-row {
+    display: flex; gap: 0.5rem; flex-wrap: wrap;
+    padding: 0 0 0.9rem;
+  }
+  .quick-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: rgba(245,242,234,0.75);
+    padding: 0.4rem 0.7rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color .15s, color .15s;
+  }
+  .quick-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+  form#composer {
+    display: flex; gap: 0.6rem;
+    padding: 0.9rem 0 1.3rem;
+    border-top: 1px solid var(--line);
+  }
+  #input {
+    flex: 1;
+    background: var(--panel-navy);
+    border: 1px solid var(--line);
+    color: var(--floodlight);
+    border-radius: 8px;
+    padding: 0.75rem 0.9rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+  }
+  #input:focus { outline: 2px solid var(--amber); outline-offset: 1px; }
+  button#send {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    background: var(--amber);
+    color: #241a02;
+    border: none;
+    padding: 0 1.3rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.88rem;
+  }
+  button#send:focus-visible, .quick-btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  button#send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--panel-navy); border-radius: 4px; }
+  
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+</style>
+</head>
+<body>
+
+  <div class="ribbon-wrap" aria-label="Live gate congestion ticker">
+    <div class="ribbon" id="ribbon">Loading live gate data…</div>
+  </div>
+
+  <header>
+    <div>
+      <div class="brand">Smart Stadium <span class="accent">Assistant</span></div>
+      <div class="subtitle" id="stadiumName">FIFA World Cup 2026</div>
+    </div>
+    
+    <div class="header-meta">
+      <span class="status-indicator" id="statusIndicator">
+        <span class="status-dot pulsing disconnected" id="statusDot"></span>
+        <span id="statusText">Connecting...</span>
+      </span>
+      <span class="provider-badge" id="providerBadge">Demo Mode</span>
+      <a href="/ops" style="color:var(--amber); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; text-decoration:none; margin-left: 5px;">Ops Console →</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- Accessibility Profiles Panel -->
+    <div class="accessibility-panel">
+      <div class="panel-label" id="profileGroupLabel">♿ Select Accessibility Profile:</div>
+      <div class="profile-chips" role="radiogroup" aria-labelledby="profileGroupLabel">
+        <button class="profile-chip active" id="prof-none" role="radio" aria-checked="true" aria-pressed="true" onclick="setProfile('none', this)">None (Standard)</button>
+        <button class="profile-chip" id="prof-wheelchair" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('wheelchair', this)">♿ Step-free / Wheelchair</button>
+        <button class="profile-chip" id="prof-sensory" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('sensory', this)">🎧 Sensory-friendly</button>
+        <button class="profile-chip" id="prof-companion" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('companion', this)">👥 Companion Seating</button>
+        <button class="profile-chip" id="prof-asl" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('asl', this)">🤟 ASL Support</button>
+        <button class="profile-chip" id="prof-walking" role="radio" aria-checked="false" aria-pressed="false" onclick="setProfile('walking', this)">🚶 Short Distance</button>
+      </div>
+    </div>
+
+    <!-- Live Rationale Bar -->
+    <div class="rationale-bar" id="rationaleBar" role="region" aria-live="polite">
+      <strong>💡 Live Gate Suggestion:</strong> <span id="recommendationExplanation">Analyzing best path...</span>
+    </div>
+
+    <!-- Dynamic Accessibility Guidance Banner -->
+    <div class="guidance-banner" id="guidanceBanner" style="display: none;">
+      <div class="guidance-header">
+        <span class="guidance-title" id="guidanceTitle">Accessibility Guidance</span>
+        <span class="badge" id="guidanceGateBadge">—</span>
+      </div>
+      <div class="guidance-body" id="guidanceBody">—</div>
+      <div class="guidance-services" id="guidanceServices">—</div>
+    </div>
+
+    <div id="log" aria-live="polite">
+      <div class="msg system">Ask about gates, seating, accessibility, transport, or amenities</div>
+      <div class="msg assistant">Welcome! I'm your stadium assistant for today's match. I can help you find the fastest gate, an accessible route, restrooms near your seat, or the best way home after the final whistle. What do you need?</div>
+    </div>
+
+    <div class="quick-row" id="quickRow">
+      <button class="quick-btn" type="button" data-q="Which gate has the shortest line right now?">Shortest line right now</button>
+      <button class="quick-btn" type="button" data-q="I use a wheelchair, what's my best route in?">Wheelchair route</button>
+      <button class="quick-btn" type="button" data-q="How do I get home after the match without a car?">Getting home</button>
+      <button class="quick-btn" type="button" data-q="Where is the nearest quiet/sensory room?">Sensory room</button>
+    </div>
+
+    <form id="composer">
+      <label for="input" class="visually-hidden">Message</label>
+      <input id="input" autocomplete="off" placeholder="Ask in any language… e.g. ¿Dónde está la puerta más rápida?" />
+      <button id="send" type="submit">Send</button>
+    </form>
+  </main>
+
+<script>
+  const log = document.getElementById('log');
+  const form = document.getElementById('composer');
+  const input = document.getElementById('input');
+  const sendBtn = document.getElementById('send');
+  const quickRow = document.getElementById('quickRow');
+  let history = [];
+  let currentProfile = 'none';
+  let cachedStatus = null;
+
+  function addMsg(role, text) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + role;
+    div.textContent = text;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+    return div;
+  }
+
+  async function send(message) {
+    if (!message.trim()) return;
+    addMsg('user', message);
+    history.push({ role: 'user', content: message });
+    input.value = '';
+    sendBtn.disabled = true;
+    
+    // Usability: loading state with progress message
+    const thinking = document.createElement('div');
+    thinking.className = 'msg system';
+    thinking.innerHTML = '<span class="spinner"></span> Stadium Assistant is routing and checking live gate data…';
+    log.appendChild(thinking);
+    log.scrollTop = log.scrollHeight;
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          message, 
+          history: history.slice(0, -1),
+          accessibility_profile: currentProfile !== 'none' ? currentProfile : null
+        })
+      });
+      const data = await res.json();
+      thinking.remove();
+      
+      if (!res.ok) {
+        let errMsg = 'Something went wrong.';
+        if (res.status === 502) {
+          errMsg = '⚠️ AI API error: The server encountered an issue connecting to the LLM service (Anthropic Claude/OpenAI) or the API key is expired. Please verify your credentials or use Demo Mode.';
+        } else if (res.status === 400) {
+          errMsg = '⚠️ Request error: ' + (data.error || 'Invalid parameters supplied.');
+        } else {
+          errMsg = '⚠️ Error: ' + (data.error || 'Server returned status ' + res.status);
+        }
+        const errDiv = addMsg('error', errMsg);
+        errDiv.setAttribute('role', 'alert');
+        return;
+      }
+      addMsg('assistant', data.reply);
+      history.push({ role: 'assistant', content: data.reply });
+    } catch (err) {
+      thinking.remove();
+      const errDiv = addMsg('error', '⚠️ Network error: Could not reach the stadium server. Make sure the Flask backend is active on port 5000 and you have a stable network connection.');
+      errDiv.setAttribute('role', 'alert');
+    } finally {
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    send(input.value);
+  });
+
+  quickRow.addEventListener('click', (e) => {
+    const btn = e.target.closest('.quick-btn');
+    if (btn) send(btn.dataset.q);
+  });
+
+  async function refreshStatus() {
+    try {
+      const res = await fetch('/api/status');
+      if (!res.ok) throw new Error('Status poll failed');
+      const data = await res.json();
+      cachedStatus = data;
+      
+      // Update Connection status to active
+      const statusDot = document.getElementById('statusDot');
+      statusDot.className = 'status-dot connected';
+      document.getElementById('statusText').textContent = 'Live Connected';
+      
+      // Update AI provider badge
+      const providerBadge = document.getElementById('providerBadge');
+      if (data.ai_provider && data.ai_provider !== 'demo') {
+        const providerNames = {
+          'anthropic': 'Anthropic Claude',
+          'openai': 'OpenAI GPT',
+          'gemini': 'Google Gemini',
+          'openai_compatible': 'OpenAI-Compatible'
+        };
+        providerBadge.textContent = providerNames[data.ai_provider] || data.ai_provider.toUpperCase();
+        providerBadge.style.color = '#59a2ff';
+        providerBadge.style.background = 'rgba(59, 130, 246, 0.08)';
+        providerBadge.style.borderColor = 'rgba(59, 130, 246, 0.2)';
+      } else {
+        providerBadge.textContent = 'Demo Mode (No Key)';
+        providerBadge.style.color = 'var(--amber)';
+        providerBadge.style.background = 'rgba(255, 182, 39, 0.08)';
+        providerBadge.style.borderColor = 'rgba(255, 182, 39, 0.2)';
+      }
+
+      document.getElementById('stadiumName').textContent = data.stadium_name;
+      
+      // Update Live recommendation explanation bar
+      document.getElementById('recommendationExplanation').textContent = data.recommendation_reason || 'Gates are closed.';
+      
+      // Update LED Ribbon
+      const ribbon = document.getElementById('ribbon');
+      const parts = Object.entries(data.crowd).map(([gate, info]) => {
+        const cls = info.label.replace(' ', '');
+        const isClosed = data.closed_gates && data.closed_gates.includes(gate);
+        const labelText = isClosed ? 'CLOSED' : info.label.toUpperCase();
+        const scoreVal = isClosed ? 0 : info.score;
+        return `<span><span class="dot ${isClosed ? 'busy' : cls}"></span><span class="gate-name">${gate}</span>${labelText} · ${(scoreVal*100).toFixed(0)}%</span>`;
+      });
+      parts.push(`<span><span class="gate-name">Recommended</span><strong style="color:var(--amber)">${data.recommended_gate || 'ESCALATE'}</strong></span>`);
+      ribbon.innerHTML = parts.join('<span style="opacity:.3">//</span>');
+
+      // Update Guidance Banner
+      updateAccessibilityGuidance();
+    } catch (err) {
+      // Usability: show disconnect state clearly
+      const statusDot = document.getElementById('statusDot');
+      statusDot.className = 'status-dot disconnected pulsing';
+      document.getElementById('statusText').textContent = 'Disconnected (Retrying)';
+    }
+  }
+
+  function setProfile(profile, chipElement) {
+    currentProfile = profile;
+    
+    // Update chip styling & ARIA tags
+    document.querySelectorAll('.profile-chip').forEach(chip => {
+      chip.classList.remove('active');
+      chip.setAttribute('aria-checked', 'false');
+      chip.setAttribute('aria-pressed', 'false');
+    });
+    chipElement.classList.add('active');
+    chipElement.setAttribute('aria-checked', 'true');
+    chipElement.setAttribute('aria-pressed', 'true');
+    
+    // Update Guidance UI
+    updateAccessibilityGuidance();
+  }
+
+  function updateAccessibilityGuidance() {
+    const banner = document.getElementById('guidanceBanner');
+    if (currentProfile === 'none') {
+      banner.style.display = 'none';
+      return;
+    }
+    
+    banner.style.display = 'flex';
+    
+    const titleEl = document.getElementById('guidanceTitle');
+    const badgeEl = document.getElementById('guidanceGateBadge');
+    const bodyEl = document.getElementById('guidanceBody');
+    const servicesEl = document.getElementById('guidanceServices');
+    
+    let recommendedGate = 'Gate D';
+    let accessibleGate = 'Gate D';
+    if (cachedStatus) {
+      recommendedGate = cachedStatus.recommended_gate || 'ESCALATE';
+      accessibleGate = cachedStatus.recommended_accessible_gate || 'ESCALATE';
+    }
+    
+    if (currentProfile === 'wheelchair') {
+      banner.style.borderColor = 'var(--turf)';
+      banner.style.background = 'var(--turf-dim)';
+      titleEl.innerHTML = '♿ Step-Free / Wheelchair Routing';
+      titleEl.style.color = '#b9eecb';
+      badgeEl.textContent = accessibleGate;
+      badgeEl.className = 'badge accessible';
+      bodyEl.textContent = `Route via the step-free priority entrance at ${accessibleGate}. Ramps and elevators provide seamless access to the Lower Bowl and Club levels.`;
+      servicesEl.innerHTML = `<strong>Available Services:</strong> Wheelchair rental is located at Guest Services near Gate D.`;
+    }
+    else if (currentProfile === 'sensory') {
+      banner.style.borderColor = 'var(--amber)';
+      banner.style.background = 'var(--amber-dim)';
+      titleEl.innerHTML = '🎧 Sensory-Friendly Guidance';
+      titleEl.style.color = '#ffe4ad';
+      badgeEl.textContent = recommendedGate;
+      badgeEl.className = 'badge surged-badge';
+      bodyEl.textContent = `Avoid sensory overload by entering through ${recommendedGate}, currently the lowest-congestion gate. The quiet sensory room is situated in Zone Z4 near Gate D.`;
+      servicesEl.innerHTML = `<strong>Available Services:</strong> Sensory kits (including noise-canceling headphones and tactile tools) are at Guest Services inside Gate D.`;
+    }
+    else if (currentProfile === 'companion') {
+      banner.style.borderColor = 'var(--blue)';
+      banner.style.background = 'var(--blue-dim)';
+      titleEl.innerHTML = '👥 Companion Seating Support';
+      titleEl.style.color = '#adcaff';
+      
+      let gate = 'Gate D';
+      if (cachedStatus && cachedStatus.closed_gates) {
+        if (cachedStatus.closed_gates.includes('Gate D')) gate = 'Gate A';
+      }
+      badgeEl.textContent = gate;
+      badgeEl.className = 'badge volunteers-badge';
+      bodyEl.textContent = `Seating coordination and companion tickets are verified at the ${gate} Guest Services & Supervisor Desk.`;
+      servicesEl.innerHTML = `<strong>Available Services:</strong> Companion seats are reserved directly adjacent to all wheelchair spaces on all levels.`;
+    }
+    else if (currentProfile === 'asl') {
+      banner.style.borderColor = 'var(--blue)';
+      banner.style.background = 'var(--blue-dim)';
+      titleEl.innerHTML = '🤟 ASL Interpretation Services';
+      titleEl.style.color = '#adcaff';
+      
+      let gate = 'Gate D';
+      if (cachedStatus && cachedStatus.closed_gates) {
+        if (cachedStatus.closed_gates.includes('Gate D')) gate = 'Gate A';
+      }
+      badgeEl.textContent = gate;
+      badgeEl.className = 'badge volunteers-badge';
+      bodyEl.textContent = `Report to Guest Services inside ${gate} to check in for ASL interpretation services or verify requested interpreters.`;
+      servicesEl.innerHTML = `<strong>Available Services:</strong> ASL requests are processed in advance, and supervisor desks maintain digital translation tablets.`;
+    }
+    else if (currentProfile === 'walking') {
+      banner.style.borderColor = 'var(--amber)';
+      banner.style.background = 'var(--amber-dim)';
+      titleEl.innerHTML = '🚶 Reduced Walking Distance Route';
+      titleEl.style.color = '#ffe4ad';
+      badgeEl.textContent = recommendedGate;
+      badgeEl.className = 'badge surged-badge';
+      bodyEl.textContent = `Minimize physical walking. We suggest using shuttle drop-off loops rather than Meadowlands Rail, which requires a 12-minute walk. Enter via closest gate: ${recommendedGate}.`;
+      servicesEl.innerHTML = `<strong>Available Services:</strong> Blue and Green shuttle buses drop off adjacent to Gate D and Gate A. Parking Lot B offers accessible priority spots.`;
+    }
+  }
+
+  refreshStatus();
+  setInterval(refreshStatus, 15000);
+</script>
+</body>
+</html>

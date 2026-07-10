@@ -1,0 +1,62 @@
+{
+  "stadium_name": "MetLife Stadium (Demo Venue - FIFA World Cup 2026)",
+  "gates": [
+    {"id": "A", "name": "Gate A - North", "opens_minutes_before_kickoff": 120, "accessible": true, "typical_wait_minutes": 15},
+    {"id": "B", "name": "Gate B - East", "opens_minutes_before_kickoff": 120, "accessible": true, "typical_wait_minutes": 25},
+    {"id": "C", "name": "Gate C - South", "opens_minutes_before_kickoff": 120, "accessible": false, "typical_wait_minutes": 10},
+    {"id": "D", "name": "Gate D - West (VIP/Accessible Priority)", "opens_minutes_before_kickoff": 150, "accessible": true, "typical_wait_minutes": 5}
+  ],
+  "zones": [
+    {
+      "id": "Z1",
+      "name": "Lower Bowl - Sections 100-139",
+      "nearest_gate": "A",
+      "amenities": ["restrooms", "concessions", "first_aid", "wheelchair_seating"],
+      "walk_minutes_from_main_concourse": 3
+    },
+    {
+      "id": "Z2",
+      "name": "Club Level - Sections 200-239",
+      "nearest_gate": "D",
+      "amenities": ["restrooms", "premium_concessions", "lounge", "nursing_room", "wheelchair_seating"],
+      "walk_minutes_from_main_concourse": 5
+    },
+    {
+      "id": "Z3",
+      "name": "Upper Bowl - Sections 300-339",
+      "nearest_gate": "B",
+      "amenities": ["restrooms", "concessions", "first_aid"],
+      "walk_minutes_from_main_concourse": 8
+    },
+    {
+      "id": "Z4",
+      "name": "Family Zone / Sensory Room",
+      "nearest_gate": "D",
+      "amenities": ["quiet_sensory_room", "nursing_room", "changing_tables", "wheelchair_seating", "restrooms"],
+      "walk_minutes_from_main_concourse": 4
+    }
+  ],
+  "transport": {
+    "shuttle_lines": [
+      {"name": "Blue Shuttle - Downtown Loop", "frequency_minutes": 10, "last_departure_after_match_minutes": 90},
+      {"name": "Green Shuttle - Airport Express", "frequency_minutes": 20, "last_departure_after_match_minutes": 60}
+    ],
+    "rail_station": "Meadowlands Rail Station",
+    "rail_walk_minutes": 12,
+    "rideshare_pickup_zone": "Lot F - Rideshare Plaza",
+    "parking_lots": ["Lot A (General)", "Lot B (Accessible)", "Lot F (Rideshare)", "Lot G (Bus/Group)"]
+  },
+  "accessibility_services": {
+    "wheelchair_rental_location": "Guest Services, Gate D",
+    "sensory_kits_location": "Guest Services, Gate D",
+    "asl_interpretation": "Request 48 hours in advance via Guest Services",
+    "companion_seating": "Available in all wheelchair-accessible sections, ask at Gate A or D"
+  },
+  "crowd_baseline": {
+    "Gate A": 0.4,
+    "Gate B": 0.6,
+    "Gate C": 0.3,
+    "Gate D": 0.15
+  },
+  "supported_languages": ["en", "es", "fr", "pt", "ar", "de", "ja", "zh"]
+}

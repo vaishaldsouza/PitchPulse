@@ -1,0 +1,1156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ops Console — Smart Stadium Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pitch-black: #08120e;
+    --panel-navy: #0e1e2d;
+    --panel-navy-light: #162a3d;
+    --floodlight: #F5F2EA;
+    --amber: #FFB627;
+    --amber-dim: rgba(255, 182, 39, 0.15);
+    --turf: #10b981;
+    --turf-dim: rgba(16, 185, 129, 0.15);
+    --danger: #ef4444;
+    --danger-dim: rgba(239, 68, 68, 0.15);
+    --blue: #3b82f6;
+    --blue-dim: rgba(59, 130, 246, 0.15);
+    --line: rgba(245, 242, 234, 0.1);
+    --glow-turf: 0 0 15px rgba(16, 185, 129, 0.35);
+    --glow-amber: 0 0 15px rgba(255, 182, 39, 0.35);
+    --glow-danger: 0 0 15px rgba(239, 68, 68, 0.35);
+  }
+  
+  * { box-sizing: border-box; }
+  
+  html, body {
+    margin: 0; min-height: 100%;
+    background: var(--pitch-black);
+    color: var(--floodlight);
+    font-family: 'Inter', sans-serif;
+  }
+  
+  body {
+    background-image: 
+      radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
+  }
+  
+  header {
+    padding: 1.25rem 2rem;
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(8, 18, 14, 0.85);
+    backdrop-filter: blur(10px);
+    position: sticky; top: 0; z-index: 100;
+  }
+  
+  .brand {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .brand .accent { color: var(--amber); }
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: rgba(245, 242, 234, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 0.2rem;
+  }
+  
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+  }
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: rgba(245, 242, 234, 0.65);
+    background: rgba(245, 242, 234, 0.05);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+  }
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #555;
+  }
+  .status-dot.connected { background: var(--turf); box-shadow: 0 0 6px var(--turf); }
+  .status-dot.disconnected { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+  .status-dot.pulsing {
+    animation: pulse 1.2s infinite alternate;
+  }
+  @keyframes pulse {
+    from { opacity: 0.4; }
+    to { opacity: 1; }
+  }
+  .provider-badge {
+    background: rgba(255, 182, 39, 0.08);
+    border: 1px solid rgba(255, 182, 39, 0.2);
+    color: var(--amber);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  
+  a.back-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--amber);
+    text-decoration: none;
+    border: 1px solid rgba(255, 182, 39, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: rgba(255, 182, 39, 0.05);
+    transition: all 0.2s ease;
+  }
+  a.back-link:hover {
+    background: var(--amber);
+    color: #08120e;
+    box-shadow: var(--glow-amber);
+    border-color: var(--amber);
+  }
+  
+  main {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 2rem;
+  }
+  
+  @media (max-width: 900px) {
+    main {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  /* ---- Panel Styling ---- */
+  .panel {
+    background: var(--panel-navy);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 1.5rem;
+    backdrop-filter: blur(5px);
+  }
+  .panel-title {
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+    color: rgba(245,242,234,0.85);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.5rem;
+  }
+  
+  /* ---- Control Panel / Sidebar ---- */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  /* Preset Button styling */
+  .presets-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .preset-btn {
+    background: var(--panel-navy-light);
+    border: 1px solid var(--line);
+    color: var(--floodlight);
+    padding: 0.65rem 0.85rem;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .preset-btn:hover {
+    border-color: var(--amber);
+    background: rgba(255, 182, 39, 0.05);
+  }
+  .preset-btn:focus-visible, .action-btn:focus-visible, .alert-action-btn:focus-visible, .gate-ctrl-btn:focus-visible, .surge-dropdown:focus-visible, .threshold-slider:focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+  
+  /* Threshold Slider */
+  .slider-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+  }
+  .slider-header .val {
+    color: var(--amber);
+    font-weight: 700;
+  }
+  .threshold-slider {
+    width: 100%;
+    accent-color: var(--amber);
+    cursor: pointer;
+  }
+  
+  /* Global Simulator Actions */
+  .global-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .action-btn {
+    width: 100%;
+    background: transparent;
+    color: var(--floodlight);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 0.65rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .action-btn:hover {
+    border-color: var(--floodlight);
+  }
+  .action-btn.active-delay {
+    border-color: var(--danger);
+    background: var(--danger-dim);
+    color: #ffcfc7;
+    box-shadow: var(--glow-danger);
+  }
+  .action-btn.reset {
+    border-color: rgba(245, 242, 234, 0.3);
+  }
+  .action-btn.reset:hover {
+    background: rgba(245, 242, 234, 0.05);
+    border-color: var(--floodlight);
+  }
+  
+  /* ---- Right Panel Layout ---- */
+  .dashboard-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  /* Alerts area */
+  #alerts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .alert-card {
+    background: var(--danger-dim);
+    border: 1px solid var(--danger);
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: var(--glow-danger);
+    animation: pulse-border 2s infinite alternate;
+  }
+  @keyframes pulse-border {
+    0% { border-color: rgba(239, 68, 68, 0.6); }
+    100% { border-color: rgba(239, 68, 68, 1); }
+  }
+  .alert-card.mitigated {
+    background: var(--blue-dim);
+    border-color: var(--blue);
+    box-shadow: none;
+    animation: none;
+  }
+  .alert-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .alert-title {
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    color: #ffb3aa;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .alert-card.mitigated .alert-title {
+    color: #adcaff;
+  }
+  .alert-desc {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: rgba(245,242,234,0.9);
+  }
+  .alert-action-btn {
+    background: var(--amber);
+    color: #08120e;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+  .alert-action-btn:hover {
+    background: #ffa800;
+    box-shadow: var(--glow-amber);
+  }
+  
+  .alert-none {
+    background: var(--turf-dim);
+    border: 1px solid var(--turf);
+    border-radius: 8px;
+    padding: 0.85rem 1.25rem;
+    color: #b9eecb;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  
+  /* Overview Row */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 120px;
+    gap: 1rem;
+  }
+  @media (max-width: 600px) {
+    .overview-grid { grid-template-columns: 1fr; }
+  }
+  
+  .overview-card {
+    background: var(--panel-navy);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .overview-card .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(245,242,234,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 0.35rem;
+  }
+  .overview-card .val {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--amber);
+  }
+  .overview-card.large {
+    grid-column: span 1;
+  }
+  
+  .recommendation-banner {
+    background: rgba(21, 43, 61, 0.4);
+    border-left: 3px solid var(--amber);
+    padding: 0.85rem 1.1rem;
+    border-radius: 0 8px 8px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: rgba(245, 242, 234, 0.8);
+    line-height: 1.45;
+  }
+  
+  /* ---- Live Gate Grid ---- */
+  .gate-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+  
+  .gate-card {
+    background: var(--panel-navy);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    position: relative;
+    transition: all 0.25s ease;
+  }
+  .gate-card:hover {
+    border-color: rgba(245,242,234,0.18);
+  }
+  .gate-card.closed {
+    opacity: 0.55;
+    border-color: var(--danger);
+  }
+  .gate-card.surged {
+    border-color: rgba(255, 182, 39, 0.45);
+    box-shadow: 0 0 10px rgba(255, 182, 39, 0.1);
+  }
+  .gate-card.volunteers {
+    border-color: rgba(59, 130, 246, 0.45);
+  }
+  
+  .gate-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .gate-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .gate-score-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+  
+  /* Progress Bar */
+  .gate-progress-track {
+    height: 8px;
+    background: rgba(245,242,234,0.06);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .gate-progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .gate-progress-fill.light { background: var(--turf); }
+  .gate-progress-fill.moderate { background: var(--amber); }
+  .gate-progress-fill.busy { background: var(--danger); }
+  .gate-progress-fill.verybusy { background: var(--danger); }
+  
+  /* Sparkline Chart */
+  .sparkline-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    background: rgba(8, 18, 14, 0.25);
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid rgba(245,242,234,0.03);
+  }
+  .sparkline-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(245,242,234,0.45);
+  }
+  .sparkline-svg-container {
+    height: 35px;
+    width: 100%;
+  }
+  .sparkline-svg {
+    height: 100%;
+    width: 100%;
+    overflow: visible;
+  }
+  
+  /* Meta Row */
+  .gate-meta-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(245,242,234,0.55);
+  }
+  .gate-meta-info .label-text {
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .badge {
+    display: inline-block; padding: 0.15rem 0.45rem; border-radius: 99px;
+    font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em;
+    font-weight: 600;
+    border: 1px solid var(--line);
+  }
+  .badge.accessible { color: var(--turf); border-color: var(--turf); background: rgba(16, 185, 129, 0.05); }
+  .badge.closed { color: #ffcfc7; border-color: var(--danger); background: rgba(239, 68, 68, 0.05); }
+  .badge.surged-badge { color: var(--amber); border-color: var(--amber); background: rgba(255, 182, 39, 0.05); }
+  .badge.volunteers-badge { color: var(--blue); border-color: var(--blue); background: rgba(59, 130, 246, 0.05); }
+  
+  /* Inner gate controls */
+  .gate-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 0.35rem;
+    border-top: 1px solid rgba(245,242,234,0.06);
+    padding-top: 0.75rem;
+  }
+  .gate-ctrl-btn {
+    background: var(--panel-navy-light);
+    border: 1px solid var(--line);
+    color: rgba(245, 242, 234, 0.75);
+    padding: 0.45rem;
+    border-radius: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+  }
+  .gate-ctrl-btn:hover {
+    border-color: rgba(245,242,234,0.25);
+    color: var(--floodlight);
+  }
+  .gate-ctrl-btn.danger {
+    color: #ffcfc7;
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+  .gate-ctrl-btn.danger:hover {
+    background: var(--danger-dim);
+    border-color: var(--danger);
+  }
+  .gate-ctrl-btn.blue {
+    color: #adcaff;
+    border-color: rgba(59, 130, 246, 0.2);
+  }
+  .gate-ctrl-btn.blue:hover {
+    background: var(--blue-dim);
+    border-color: var(--blue);
+  }
+  
+  /* Surge picker dropdown */
+  .surge-select-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    grid-column: span 2;
+  }
+  .surge-select-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    color: rgba(245,242,234,0.45);
+    text-transform: uppercase;
+  }
+  .surge-dropdown {
+    width: 100%;
+    background: var(--panel-navy-light);
+    border: 1px solid var(--line);
+    color: var(--floodlight);
+    border-radius: 4px;
+    padding: 0.35rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    outline: none;
+    cursor: pointer;
+  }
+  .surge-dropdown:hover, .surge-dropdown:focus {
+    border-color: var(--amber);
+  }
+  
+  /* Timeline Log */
+  .log-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .log-tabs {
+    display: flex;
+    gap: 0.35rem;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.65rem;
+    overflow-x: auto;
+  }
+  .log-tab {
+    background: transparent;
+    border: none;
+    color: rgba(245,242,234,0.5);
+    padding: 0.35rem 0.65rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+  }
+  .log-tab:hover {
+    color: var(--floodlight);
+    background: rgba(245,242,234,0.05);
+  }
+  .log-tab.active {
+    color: var(--amber);
+    background: var(--amber-dim);
+    font-weight: 700;
+  }
+  
+  .change-log-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+  
+  .log-item {
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    border-left: 3px solid transparent;
+    background: rgba(21, 43, 61, 0.2);
+  }
+  
+  .log-item.SYSTEM { border-left-color: var(--floodlight); }
+  .log-item.INCIDENT { border-left-color: var(--danger); }
+  .log-item.ROUTE_RECOM { border-left-color: var(--amber); }
+  .log-item.STAFF_ACTION { border-left-color: var(--blue); }
+  .log-item.ALERT { border-left-color: #ec4899; }
+  
+  .log-item-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    color: rgba(245,242,234,0.4);
+  }
+  .log-item-tag {
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .log-item.SYSTEM .log-item-tag { color: var(--floodlight); }
+  .log-item.INCIDENT .log-item-tag { color: var(--danger); }
+  .log-item.ROUTE_RECOM .log-item-tag { color: var(--amber); }
+  .log-item.STAFF_ACTION .log-item-tag { color: var(--blue); }
+  .log-item.ALERT .log-item-tag { color: #ec4899; }
+  
+  .log-item-msg {
+    color: rgba(245,242,234,0.85);
+  }
+  
+  .log-item time {
+    color: rgba(245,242,234,0.4);
+  }
+  
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+  
+  footer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(245,242,234,0.3);
+    text-align: center;
+    padding: 2.5rem 0 1.5rem;
+    border-top: 1px solid var(--line);
+    margin-top: 3rem;
+  }
+  
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: rgba(245,242,234,0.1); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(245,242,234,0.2); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="brand">Operations <span class="accent">Console</span></div>
+    <div class="subtitle" id="stadiumName">Smart Stadium · Staff View</div>
+  </div>
+  
+  <div class="header-meta">
+    <span class="status-indicator" id="statusIndicator">
+      <span class="status-dot pulsing disconnected" id="statusDot"></span>
+      <span id="statusText">Connecting...</span>
+    </span>
+    <span class="provider-badge" id="providerBadge">Demo Mode</span>
+    <a class="back-link" href="/">← Fan Assistant</a>
+  </div>
+</header>
+
+<main>
+  <!-- Sidebar Controls Panel -->
+  <section class="sidebar">
+    <div class="panel">
+      <h2 class="panel-title">Scenario Presets</h2>
+      <div class="presets-grid">
+        <button class="preset-btn" type="button" onclick="triggerPreset('normal')">🟢 Normal Operations</button>
+        <button class="preset-btn" type="button" onclick="triggerPreset('surge')">⚡ Peak Arrival Surge</button>
+        <button class="preset-btn" type="button" onclick="triggerPreset('closure')">🚨 Gate B Closure & Redirect</button>
+        <button class="preset-btn" type="button" onclick="triggerPreset('transit')">🌧 Transit Delay & Storm</button>
+      </div>
+    </div>
+    
+    <div class="panel">
+      <h2 class="panel-title">Alert Settings</h2>
+      <div class="slider-container">
+        <div class="slider-header">
+          <label for="thresholdSlider">Congestion Threshold</label>
+          <span class="val" id="thresholdVal">75%</span>
+        </div>
+        <input type="range" class="threshold-slider" id="thresholdSlider" min="25" max="95" value="75" step="5" onchange="updateThreshold(this.value)">
+      </div>
+    </div>
+    
+    <div class="panel">
+      <h2 class="panel-title">Global Adjustments</h2>
+      <div class="global-actions">
+        <button class="action-btn" id="transportDelayBtn" type="button">Activate transport delay</button>
+        <button class="action-btn reset" type="button" onclick="triggerPreset('normal')">Reset Simulation</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Right Dashboard Content -->
+  <section class="dashboard-content">
+    <!-- Actionable Alerts Section -->
+    <div id="alerts"></div>
+
+    <!-- Recommendations Overview Panel -->
+    <div class="panel">
+      <h2 class="panel-title">Operations Routing</h2>
+      <div class="overview-grid">
+        <div class="overview-card">
+          <div class="label">Recommended Gate</div>
+          <div class="val" id="recGate">—</div>
+        </div>
+        <div class="overview-card">
+          <div class="label">Accessible Recommended Gate</div>
+          <div class="val" id="recAccessibleGate">—</div>
+        </div>
+        <div class="overview-card" style="text-align: center;">
+          <div class="label">Congested Gates</div>
+          <div class="val" id="congestedCount" style="color:var(--danger)">0</div>
+        </div>
+      </div>
+      <div style="margin-top: 1rem;">
+        <div class="recommendation-banner" id="recommendationReason">
+          Calculating operational recommendations...
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline Event Log Section -->
+    <div class="panel log-panel">
+      <h2 class="panel-title" style="margin-bottom: 0.75rem;">What Changed (Event Timeline)</h2>
+      <div class="log-tabs">
+        <button class="log-tab active" onclick="filterLogs('ALL', this)">All Events</button>
+        <button class="log-tab" onclick="filterLogs('ALERT', this)">Alerts</button>
+        <button class="log-tab" onclick="filterLogs('INCIDENT', this)">Incidents</button>
+        <button class="log-tab" onclick="filterLogs('STAFF_ACTION', this)">Staff Actions</button>
+        <button class="log-tab" onclick="filterLogs('ROUTE_RECOM', this)">Routing Shifts</button>
+      </div>
+      <ul class="change-log-list" id="changeLog">
+        <li style="padding:1rem; text-align:center; color:rgba(245,242,234,0.4); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">No events logged yet.</li>
+      </ul>
+    </div>
+
+    <!-- Gate Cards Grid -->
+    <div class="panel">
+      <h2 class="panel-title">Gate Congestion & Monitoring</h2>
+      <div class="gate-grid" id="gateGrid">
+        <div style="grid-column:1/-1; padding:2rem; text-align:center; color:rgba(245,242,234,0.4)">Loading live gate status...</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>Refreshes every 5s · Live crowd data is simulated for this demo build</footer>
+
+<script>
+  let activeLogFilter = 'ALL';
+  let cachedStatus = null;
+
+  async function refresh() {
+    try {
+      const res = await fetch('/api/status');
+      if (!res.ok) throw new Error('Status poll failed');
+      const data = await res.json();
+      cachedStatus = data;
+
+      // Update Connection status to active
+      const statusDot = document.getElementById('statusDot');
+      statusDot.className = 'status-dot connected';
+      document.getElementById('statusText').textContent = 'Live Connected';
+      
+      // Update AI provider badge
+      const providerBadge = document.getElementById('providerBadge');
+      if (data.ai_provider && data.ai_provider !== 'demo') {
+        const providerNames = {
+          'anthropic': 'Anthropic Claude',
+          'openai': 'OpenAI GPT',
+          'gemini': 'Google Gemini',
+          'openai_compatible': 'OpenAI-Compatible'
+        };
+        providerBadge.textContent = providerNames[data.ai_provider] || data.ai_provider.toUpperCase();
+        providerBadge.style.color = '#59a2ff';
+        providerBadge.style.background = 'rgba(59, 130, 246, 0.08)';
+        providerBadge.style.borderColor = 'rgba(59, 130, 246, 0.2)';
+      } else {
+        providerBadge.textContent = 'Demo Mode (No Key)';
+        providerBadge.style.color = 'var(--amber)';
+        providerBadge.style.background = 'rgba(255, 182, 39, 0.08)';
+        providerBadge.style.borderColor = 'rgba(255, 182, 39, 0.2)';
+      }
+
+      document.getElementById('stadiumName').textContent = data.stadium_name + ' · Staff View';
+      document.getElementById('recGate').textContent = data.recommended_gate || 'ESCALATE';
+      document.getElementById('recAccessibleGate').textContent = data.recommended_accessible_gate || 'ESCALATE';
+      document.getElementById('recommendationReason').textContent = data.recommendation_reason;
+
+      // Update threshold UI slider
+      const thresholdVal = Math.round((data.alert_threshold || 0.75) * 100);
+      document.getElementById('thresholdSlider').value = thresholdVal;
+      document.getElementById('thresholdVal').textContent = thresholdVal + '%';
+
+      // Count congested gates (using current active threshold)
+      const congested = data.gates.filter(g => !g.closed && g.score >= (data.alert_threshold || 0.75)).length;
+      const congestedValEl = document.getElementById('congestedCount');
+      congestedValEl.textContent = congested;
+      congestedValEl.style.color = congested > 0 ? 'var(--danger)' : 'var(--turf)';
+
+      // Process Alerts (WCAG: plain text indicators & icons, not color alone)
+      const alertsEl = document.getElementById('alerts');
+      if (data.alerts.length === 0) {
+        alertsEl.innerHTML = `
+          <div class="alert-none" role="status">
+            <span>✓ [STATUS: NOMINAL]</span> All stadium gates operating within nominal ranges.
+          </div>`;
+      } else {
+        alertsEl.innerHTML = data.alerts.map(a => {
+          let actionButtonHtml = '';
+          let isMitigated = a.includes('Mitigated');
+          let severity = '[SEVERITY: WARNING]';
+          let icon = '⚠️';
+          
+          if (isMitigated) {
+            severity = '[STATUS: MITIGATED]';
+            icon = '✓';
+          } else if (a.includes('closed') || a.includes('delay')) {
+            severity = '[SEVERITY: CRITICAL]';
+            icon = '🚨';
+          }
+          
+          if (a.includes('Suggested rerouting: Move volunteers from')) {
+            const match = a.match(/Move volunteers from (Gate \w+) to (Gate \w+|another open gate)/);
+            if (match) {
+              const fromGate = match[1];
+              const toGate = match[2];
+              if (toGate !== 'another open gate') {
+                actionButtonHtml = `<button class="alert-action-btn" onclick="deployVolunteers('${fromGate}', '${toGate}')">Route Volunteers</button>`;
+              }
+            }
+          }
+          
+          return `
+            <div class="alert-card ${isMitigated ? 'mitigated' : ''}" role="alert">
+              <div class="alert-content">
+                <div class="alert-title">
+                  <span>${icon} ${severity}</span>
+                </div>
+                <div class="alert-desc">${a}</div>
+              </div>
+              ${isMitigated ? '' : actionButtonHtml}
+            </div>`;
+        }).join('');
+      }
+
+      // Transport delay global button
+      const delayButton = document.getElementById('transportDelayBtn');
+      delayButton.textContent = data.transport_delay ? 'Clear transport delay' : 'Activate transport delay';
+      delayButton.classList.toggle('active-delay', data.transport_delay);
+      delayButton.onclick = () => setTransportDelay(!data.transport_delay);
+
+      // Render logs
+      renderLogsList(data.change_log);
+
+      // Render Gate Grid
+      const grid = document.getElementById('gateGrid');
+      grid.innerHTML = data.gates.map(g => {
+        const scorePct = Math.round(g.score * 100);
+        let statusCls = 'light';
+        if (g.score >= 0.75) statusCls = 'busy';
+        else if (g.score >= 0.5) statusCls = 'moderate';
+        
+        let cardStateClass = '';
+        if (g.closed) cardStateClass = 'closed';
+        else if (g.surged) cardStateClass = 'surged';
+        else if (g.volunteers_active) cardStateClass = 'volunteers';
+
+        // Draw Sparkline SVG path
+        const trendPts = g.trend_30_minutes || [];
+        const width = 240;
+        const height = 30;
+        let sparklinePath = '';
+        let areaPath = '';
+        
+        if (trendPts.length > 1) {
+          const coords = trendPts.map((p, idx) => {
+            const x = (idx / (trendPts.length - 1)) * width;
+            const y = height - (p * (height - 6) + 3); // normalized 0..1 with 3px padding
+            return `${x.toFixed(1)},${y.toFixed(1)}`;
+          });
+          sparklinePath = `M ${coords.join(' L ')}`;
+          areaPath = `${sparklinePath} L ${width},${height} L 0,${height} Z`;
+        }
+
+        // Determine sparkline color
+        let sparklineColor = 'var(--turf)';
+        let fillGradientId = `grad-clear-${g.name.replace(' ', '')}`;
+        if (statusCls === 'busy') {
+          sparklineColor = 'var(--danger)';
+          fillGradientId = `grad-busy-${g.name.replace(' ', '')}`;
+        } else if (statusCls === 'moderate') {
+          sparklineColor = 'var(--amber)';
+          fillGradientId = `grad-moderate-${g.name.replace(' ', '')}`;
+        }
+
+        // Generate drop-down options programmatically to avoid label/id conflicts
+        const optionId = `surge-dropdown-${g.name.replace(' ', '')}`;
+
+        return `
+          <div class="gate-card ${cardStateClass}">
+            <div class="gate-header">
+              <span class="gate-title">${g.name}</span>
+              <span class="gate-score-badge" style="color:${sparklineColor}">${scorePct}%</span>
+            </div>
+            
+            <div class="gate-progress-track">
+              <div class="gate-progress-fill ${statusCls}" style="width: ${scorePct}%"></div>
+            </div>
+            
+            <div class="sparkline-box">
+              <div class="sparkline-label">
+                <span>30m capacity trend</span>
+                <span style="font-weight:700">${g.trend_delta >= 0 ? '↑' : '↓'} ${Math.abs(g.trend_delta)}%</span>
+              </div>
+              <div class="sparkline-svg-container">
+                <svg viewBox="0 0 240 30" class="sparkline-svg" preserveAspectRatio="none" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="${fillGradientId}" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="${sparklineColor}" stop-opacity="0.25" />
+                      <stop offset="100%" stop-color="${sparklineColor}" stop-opacity="0.0" />
+                    </linearGradient>
+                  </defs>
+                  <path d="${areaPath}" fill="url(#${fillGradientId})" />
+                  <path d="${sparklinePath}" fill="none" stroke="${sparklineColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </div>
+            </div>
+
+            <div class="gate-meta-info">
+              <span class="label-text">${g.closed ? 'OFFLINE' : g.label}</span>
+              <div style="display:flex; gap:0.25rem;">
+                ${g.closed ? '<span class="badge closed">Closed</span>' : ''}
+                ${g.accessible ? '<span class="badge accessible">Accessible</span>' : ''}
+                ${g.surged && !g.closed ? '<span class="badge surged-badge">Surged</span>' : ''}
+                ${g.volunteers_active && !g.closed ? '<span class="badge volunteers-badge">Staff Active</span>' : ''}
+              </div>
+            </div>
+
+            <!-- Individual Gate Controls -->
+            <div class="gate-actions">
+              <div class="surge-select-box">
+                <label class="surge-select-label" for="${optionId}">Simulate Crowd level</label>
+                <select class="surge-dropdown" id="${optionId}" onchange="simulateSurge('${g.name}', this.value)">
+                  <option value="clear" ${!g.surged ? 'selected' : ''}>Automatic wave</option>
+                  <option value="0.90" ${g.surged && Math.abs(g.score - 0.90) < 0.05 && !g.volunteers_active ? 'selected' : ''}>High Overflow (90%)</option>
+                  <option value="0.78" ${g.surged && Math.abs(g.score - 0.78) < 0.05 && !g.volunteers_active ? 'selected' : ''}>Heavy Traffic (78%)</option>
+                  <option value="0.45" ${g.surged && Math.abs(g.score - 0.45) < 0.05 && !g.volunteers_active ? 'selected' : ''}>Moderate (45%)</option>
+                  <option value="0.15" ${g.surged && Math.abs(g.score - 0.15) < 0.05 && !g.volunteers_active ? 'selected' : ''}>Low Traffic (15%)</option>
+                </select>
+              </div>
+              <button class="gate-ctrl-btn ${g.closed ? '' : 'danger'}" type="button" onclick="toggleGate('${g.name}', ${!g.closed})">
+                ${g.closed ? 'Reopen Gate' : 'Close Gate'}
+              </button>
+              <button class="gate-ctrl-btn blue" type="button" onclick="toggleVolunteers('${g.name}', ${!g.volunteers_active})">
+                ${g.volunteers_active ? 'Recall Staff' : 'Deploy Staff'}
+              </button>
+            </div>
+          </div>`;
+      }).join('');
+    } catch (err) {
+      // Usability: show disconnect state clearly
+      const statusDot = document.getElementById('statusDot');
+      statusDot.className = 'status-dot disconnected pulsing';
+      document.getElementById('statusText').textContent = 'Disconnected (Retrying)';
+      
+      document.getElementById('gateGrid').innerHTML = '<div style="grid-column:1/-1; padding:2rem; text-align:center; color:var(--danger)">⚠️ Live connection lost. Ensure the stadium backend server is running.</div>';
+    }
+  }
+
+  function renderLogsList(changeLog) {
+    const changeLogEl = document.getElementById('changeLog');
+    const filteredLogs = changeLog.filter(item => {
+      if (activeLogFilter === 'ALL') return true;
+      return item.type === activeLogFilter;
+    });
+
+    if (filteredLogs.length === 0) {
+      changeLogEl.innerHTML = `<li style="padding:1rem; text-align:center; color:rgba(245,242,234,0.4); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">No events match the selected filter.</li>`;
+      return;
+    }
+
+    changeLogEl.innerHTML = filteredLogs.map(item => `
+      <li class="log-item ${item.type || 'SYSTEM'}">
+        <div class="log-item-header">
+          <span class="log-item-tag">${item.type || 'SYSTEM'}</span>
+          <time>${item.time}</time>
+        </div>
+        <div class="log-item-msg">${item.message}</div>
+      </li>`).join('');
+  }
+
+  function filterLogs(category, btnElement) {
+    activeLogFilter = category;
+    
+    // Update active tab styling
+    document.querySelectorAll('.log-tab').forEach(tab => tab.classList.remove('active'));
+    btnElement.classList.add('active');
+    
+    if (cachedStatus) {
+      renderLogsList(cachedStatus.change_log);
+    }
+  }
+
+  async function postIncident(payload) {
+    const res = await fetch('/api/ops/incidents', { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify(payload) 
+    });
+    if (!res.ok) throw new Error('Incident update failed');
+    await refresh();
+  }
+
+  async function toggleGate(gate, close) {
+    try { 
+      await postIncident({ action: close ? 'close_gate' : 'reopen_gate', gate }); 
+    } catch (err) { 
+      showErrorAlert('Unable to modify gate status.'); 
+    }
+  }
+
+  async function setTransportDelay(enabled) {
+    try { 
+      await postIncident({ action: 'set_transport_delay', enabled }); 
+    } catch (err) { 
+      showErrorAlert('Unable to update transport delay mode.'); 
+    }
+  }
+
+  async function simulateSurge(gate, scoreStr) {
+    try {
+      const score = scoreStr === 'clear' ? null : parseFloat(scoreStr);
+      await postIncident({ action: 'set_gate_surge', gate, score });
+    } catch (err) {
+      showErrorAlert('Unable to simulate congestion surge.');
+    }
+  }
+
+  async function updateThreshold(val) {
+    try {
+      const floatVal = parseFloat(val) / 100;
+      await postIncident({ action: 'set_alert_threshold', threshold: floatVal });
+    } catch (err) {
+      showErrorAlert('Unable to update alert threshold.');
+    }
+  }
+
+  async function deployVolunteers(fromGate, toGate) {
+    try {
+      await postIncident({ action: 'deploy_volunteers', from_gate: fromGate, to_gate: toGate });
+    } catch (err) {
+      showErrorAlert('Unable to dispatch volunteers.');
+    }
+  }
+
+  async function toggleVolunteers(gate, deploy) {
+    try {
+      if (deploy) {
+        await postIncident({ action: 'deploy_volunteers', from_gate: gate, to_gate: gate });
+      } else {
+        await postIncident({ action: 'clear_volunteers', gate });
+      }
+    } catch (err) {
+      showErrorAlert('Unable to toggle staff status.');
+    }
+  }
+
+  async function triggerPreset(scenario) {
+    try {
+      if (scenario === 'normal') {
+        await postIncident({ action: 'reset_simulation' });
+      } else if (scenario === 'surge') {
+        await postIncident({ action: 'reset_simulation' });
+        await postIncident({ action: 'set_gate_surge', gate: 'Gate A', score: 0.90 });
+        await postIncident({ action: 'set_gate_surge', gate: 'Gate B', score: 0.82 });
+      } else if (scenario === 'closure') {
+        await postIncident({ action: 'reset_simulation' });
+        await postIncident({ action: 'close_gate', gate: 'Gate B' });
+      } else if (scenario === 'transit') {
+        await postIncident({ action: 'reset_simulation' });
+        await postIncident({ action: 'set_transport_delay', enabled: true });
+        await postIncident({ action: 'set_gate_surge', gate: 'Gate D', score: 0.85 });
+      }
+    } catch (err) {
+      showErrorAlert('Preset action failed.');
+    }
+  }
+
+  function showErrorAlert(msg) {
+    const alertsEl = document.getElementById('alerts');
+    alertsEl.innerHTML = `<div class="alert-card" role="alert"><div class="alert-desc">Error: ${msg}</div></div>` + alertsEl.innerHTML;
+  }
+
+  refresh();
+  setInterval(refresh, 5000);
+</script>
+</body>
+</html>
