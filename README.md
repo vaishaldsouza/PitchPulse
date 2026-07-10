@@ -92,17 +92,20 @@ numbers rather than a conversational answer.
 ```
 backend/
   app.py            Flask routes: chat, status, health
-  assistant.py       Builds the grounded system prompt, calls Claude
-  crowd_sim.py       Deterministic live-crowd simulation + gate recommendation
-  data/stadium.json  Venue knowledge base (gates, zones, transport, accessibility)
-  requirements.txt
+  assistant.py      Builds the grounded system prompt, calls Claude
+  crowd_sim.py      Deterministic live-crowd simulation + gate recommendation
+  data/stadium.json Venue knowledge base (gates, zones, transport, accessibility)
+  requirements.txt  Python libraries & dependencies
 frontend/
-  index.html         Fan-facing chat UI (no build step, no framework)
-  dashboard.html     Staff-facing ops console at /ops (live congestion + alerts)
+  index.html        Fan-facing assistant UI (Dark/Light glassmorphism)
+  dashboard.html    Staff-facing ops console at /ops (alerts & surges)
 tests/
-  test_app.py         Unit tests for crowd logic + Flask API (10 tests, no network calls)
-.env.example
-.gitignore
+  test_app.py       Unit tests for crowd logic & security bounds (34 tests, no network)
+.dockerignore       Files excluded from Docker builds
+.env.example        Environment configuration template
+.gitignore          Paths excluded from Git tracking
+Dockerfile          Container deployment configuration
+LICENSE             MIT License specification
 ```
 
 ## Running it locally
