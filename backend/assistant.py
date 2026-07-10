@@ -75,6 +75,8 @@ TRANSPORT STATUS:
 
 RECOMMENDED GATE RIGHT NOW (least congested): {recommended_gate}
 RECOMMENDED ACCESSIBLE GATE RIGHT NOW: {recommended_accessible_gate}
+
+LANGUAGE CONFIGURATION: {lang_instruction}
 """
 
 
@@ -89,6 +91,7 @@ def build_system_prompt(
     surged_gates: dict[str, float] | None = None,
     volunteers_active: dict[str, bool] | None = None,
     accessibility_profile: str | None = None,
+    language: str = "en",
 ) -> str:
     data = _load_stadium_data()
     crowd = get_live_crowd_levels(
@@ -142,6 +145,13 @@ def build_system_prompt(
             f"sensory room in Zone Z4, or shuttle drop-offs close to gates)."
         )
 
+    lang_directives = {
+        "en": "Respond strictly in English.",
+        "es": "Responde estrictamente en Español (Spanish). Traduce todos los nombres de servicios, estados de puertas y tiempos de espera al Español.",
+        "fr": "Répondez strictement en Français (French). Traduisez tous les noms de services, statuts des portes et temps d'attente en Français."
+    }
+    lang_instruction = lang_directives.get(language, lang_directives['en'])
+
     return SYSTEM_PROMPT_TEMPLATE.format(
         stadium_name=data["stadium_name"],
         knowledge_base=json.dumps(data, indent=2),
@@ -150,7 +160,91 @@ def build_system_prompt(
         recommended_gate=best_gate or "none (escalate)",
         recommended_accessible_gate=best_accessible_gate or "none (escalate)",
         accessibility_profile_instruction=accessibility_profile_instruction,
+        lang_instruction=lang_instruction,
     )
+
+
+def translate_demo_text(text: str, lang: str) -> str:
+    if lang == "en":
+        return text
+    translations_es = {
+        "is currently CLOSED. Please route to the": "está CERRADA actualmente. Por favor diríjase a la",
+        "instead.": "en su lugar.",
+        "is available in your zone,": "está disponible en su zona,",
+        "reached via Gate": "a la que se accede por la Puerta",
+        "is available at": "está disponible en",
+        "Tell me your section for the closest option.": "Dígame su sección para la opción más cercana.",
+        "location could not be determined.": "ubicación no se pudo determinar.",
+        "Section": "Sección",
+        "is in": "está en la",
+        "Use Gate": "Use la Puerta",
+        "amenities there include": "las comodidades allí incluyen",
+        "is unavailable.": "no está disponible.",
+        "is CLOSED due to an operational incident.": "está CERRADA debido a un incidente operativo.",
+        "is currently": "está actualmente",
+        "and has step-free access": "y tiene acceso sin escalones",
+        "it is the least-congested gate right now": "es la puerta menos congestionada en este momento",
+        "Wheelchair Profile Active: Recommending step-free concourses. Enter via": "Perfil de silla de ruedas activo: recomendación de pasillos sin escalones. Ingrese por la",
+        "Wheelchair rental is at Gate D Guest Services.": "El alquiler de sillas de ruedas está en el Servicio de Atención al Invitado de la Puerta D.",
+        "Sensory-Friendly Profile Active: Recommending low-congestion entry via": "Perfil sensorial activo: recomendación de entrada de baja congestión por la",
+        "Sensory kits are available at Gate D Guest Services. Quiet sensory room is in Zone Z4.": "Los kits sensoriales están disponibles en la Puerta D. La sala sensorial silenciosa está en la Zona Z4.",
+        "Companion Seating Profile Active: Companion seating requests are managed at Gate A and D supervisor desks.": "Perfil de asientos acompañantes activo: las solicitudes se gestionan en las mesas de supervisores de las Puertas A y D.",
+        "ASL Profile Active: Request ASL interpretation 48 hours in advance at Gate D Guest Services.": "Perfil ASL activo: solicite interpretación de ASL con 48 horas de anticipación en Guest Services de la Puerta D.",
+        "Short Distance Profile Active: Avoid Meadowlands Rail walk. Recommending shuttle loops or Lot B. Entrance:": "Perfil de corta distancia activo: evite la caminata a la estación. Se recomiendan lanzaderas o el Lote B. Entrada:",
+        "quiet sensory room": "sala sensorial silenciosa",
+        "nursing room": "sala de lactancia",
+        "first aid": "primeros auxilios",
+        "restrooms": "baños",
+        "restroom": "baño",
+        "toilet": "inodoro",
+        "bathroom": "baño",
+        "Demo mode (no API key):": "Modo de demostración (sin clave API):",
+        "transport delay is active": "el retraso de transporte está activo",
+        "Normal transit operations.": "Operaciones normales de tránsito.",
+        "Accessible parking is Lot B.": "El estacionamiento accesible es el Lote B."
+    }
+    
+    translations_fr = {
+        "is currently CLOSED. Please route to the": "est actuellement FERMÉE. Veuillez vous diriger vers la",
+        "instead.": "à la place.",
+        "is available in your zone,": "est disponible dans votre zone,",
+        "reached via Gate": "accessible par la Porte",
+        "is available at": "est disponible à",
+        "Tell me your section for the closest option.": "Dites-moi votre section pour l'option la plus proche.",
+        "location could not be determined.": "l'emplacement n'a pas pu être déterminé.",
+        "Section": "Section",
+        "is in": "est dans la",
+        "Use Gate": "Utilisez la Porte",
+        "amenities there include": "les services sur place comprennent",
+        "is unavailable.": "est indisponible.",
+        "is CLOSED due to an operational incident.": "est FERMÉE en raison d'un incident opérationnel.",
+        "is currently": "est actuellement",
+        "and has step-free access": "et dispose d'un accès sans marche",
+        "it is the least-congested gate right now": "c'est la porte la moins encombrée actuellement",
+        "Wheelchair Profile Active: Recommending step-free concourses. Enter via": "Profil fauteuil roulant actif: recommandation de halls sans marche. Entrez par la",
+        "Wheelchair rental is at Gate D Guest Services.": "La location de fauteuils roulants s'effectue au comptoir d'accueil de la Porte D.",
+        "Sensory-Friendly Profile Active: Recommending low-congestion entry via": "Profil sensoriel actif: recommandation d'une entrée à faible affluence via la",
+        "Sensory kits are available at Gate D Guest Services. Quiet sensory room is in Zone Z4.": "Les kits sensoriels sont disponibles à la Porte D. La salle sensorielle calme est en Zone Z4.",
+        "Companion Seating Profile Active: Companion seating requests are managed at Gate A and D supervisor desks.": "Profil sièges compagnon actif: les demandes de sièges compagnons sont gérées aux bureaux des superviseurs des Portes A et D.",
+        "ASL Profile Active: Request ASL interpretation 48 hours in advance at Gate D Guest Services.": "Profil ASL actif: demandez une interprétation ASL 48 heures à l'avance à la Porte D.",
+        "Short Distance Profile Active: Avoid Meadowlands Rail walk. Recommending shuttle loops or Lot B. Entrance:": "Profil distance réduite actif: évitez la marche vers la gare. Navettes ou Lot B recommandés. Entrée:",
+        "quiet sensory room": "salle sensorielle calme",
+        "nursing room": "salle d'allaitement",
+        "first aid": "premiers secours",
+        "restrooms": "toilettes",
+        "restroom": "toilette",
+        "toilet": "toilette",
+        "bathroom": "salle de bain",
+        "Demo mode (no API key):": "Mode démo (sans clé API) :",
+        "transport delay is active": "le retard de transport est actif",
+        "Normal transit operations.": "Opérations de transit normales.",
+        "Accessible parking is Lot B.": "Le parking accessible est le Lot B."
+    }
+    translations = translations_es if lang == "es" else translations_fr
+    replaced_text = text
+    for en_phrase, target_phrase in translations.items():
+        replaced_text = replaced_text.replace(en_phrase, target_phrase)
+    return replaced_text
 
 
 class StadiumAssistant:
@@ -393,12 +487,13 @@ class StadiumAssistant:
         surged_gates: dict[str, float] | None = None,
         volunteers_active: dict[str, bool] | None = None,
         accessibility_profile: str | None = None,
+        language: str = "en",
     ) -> str:
         base_url = base_url.rstrip("/")
         if not base_url.startswith(("https://", "http://")):
             raise ValueError("Custom endpoint must start with http:// or https://")
         endpoint = f"{base_url}/v1/chat/completions"
-        messages = [{"role": "system", "content": build_system_prompt(closed_gates, transport_delay, surged_gates, volunteers_active, accessibility_profile)}] + history + [
+        messages = [{"role": "system", "content": build_system_prompt(closed_gates, transport_delay, surged_gates, volunteers_active, accessibility_profile, language=language)}] + history + [
             {"role": "user", "content": user_message}
         ]
         response = self._post_json(
@@ -418,6 +513,7 @@ class StadiumAssistant:
         surged_gates: dict[str, float] | None = None,
         volunteers_active: dict[str, bool] | None = None,
         accessibility_profile: str | None = None,
+        language: str = "en",
     ) -> str:
         contents = [
             {
@@ -430,7 +526,7 @@ class StadiumAssistant:
             "https://generativelanguage.googleapis.com/v1beta/models/"
             f"{quote(model, safe='')}:generateContent",
             {
-                "system_instruction": {"parts": [{"text": build_system_prompt(closed_gates, transport_delay, surged_gates, volunteers_active, accessibility_profile)}]},
+                "system_instruction": {"parts": [{"text": build_system_prompt(closed_gates, transport_delay, surged_gates, volunteers_active, accessibility_profile, language=language)}]},
                 "contents": contents,
                 "generationConfig": {"maxOutputTokens": 600},
             },
@@ -454,13 +550,14 @@ class StadiumAssistant:
         surged_gates: dict[str, float] | None = None,
         volunteers_active: dict[str, bool] | None = None,
         accessibility_profile: str | None = None,
+        language: str = "en",
     ) -> str:
         """
         history: list of {"role": "user"|"assistant", "content": str}
         """
         history = history or []
         if provider == "demo":
-            return self._demo_reply(
+            reply = self._demo_reply(
                 user_message,
                 closed_gates=closed_gates,
                 transport_delay=transport_delay,
@@ -468,6 +565,7 @@ class StadiumAssistant:
                 volunteers_active=volunteers_active,
                 accessibility_profile=accessibility_profile,
             )
+            return translate_demo_text(reply, language)
 
         model = model or DEFAULT_MODELS[provider]
         if provider == "anthropic":
@@ -477,7 +575,7 @@ class StadiumAssistant:
             response = client.messages.create(
                 model=model,
                 max_tokens=600,
-                system=build_system_prompt(closed_gates, transport_delay, surged_gates, volunteers_active, accessibility_profile),
+                system=build_system_prompt(closed_gates, transport_delay, surged_gates, volunteers_active, accessibility_profile, language=language),
                 messages=history + [{"role": "user", "content": user_message}],
             )
             return "".join(block.text for block in response.content if block.type == "text")
@@ -485,10 +583,10 @@ class StadiumAssistant:
         if not api_key:
             raise ValueError("An API key is required for the selected provider.")
         if provider == "gemini":
-            return self._ask_gemini(user_message, history, api_key, model, closed_gates, transport_delay, surged_gates, volunteers_active, accessibility_profile)
+            return self._ask_gemini(user_message, history, api_key, model, closed_gates, transport_delay, surged_gates, volunteers_active, accessibility_profile, language=language)
         if provider in ("openai", "openai_compatible"):
             endpoint = "https://api.openai.com" if provider == "openai" else (base_url or "")
-            return self._ask_openai_compatible(user_message, history, api_key, model, endpoint, closed_gates, transport_delay, surged_gates, volunteers_active, accessibility_profile)
+            return self._ask_openai_compatible(user_message, history, api_key, model, endpoint, closed_gates, transport_delay, surged_gates, volunteers_active, accessibility_profile, language=language)
         raise ValueError("Unsupported provider.")
 
 

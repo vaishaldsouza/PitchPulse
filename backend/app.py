@@ -96,12 +96,20 @@ class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=2000)
     history: List[ChatHistoryItem] = Field(default_factory=list)
     accessibility_profile: Optional[str] = None
+    language: Optional[str] = "en"
 
     @field_validator("accessibility_profile")
     @classmethod
     def validate_profile(cls, v: Optional[str]) -> Optional[str]:
         if v is not None and v not in {"none", "wheelchair", "sensory", "companion", "asl", "walking"}:
             raise ValueError("Invalid accessibility profile name.")
+        return v
+
+    @field_validator("language")
+    @classmethod
+    def validate_language(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and v not in {"en", "es", "fr"}:
+            raise ValueError("Unsupported language. Supported are 'en', 'es', or 'fr'.")
         return v
 
 class IncidentRequest(BaseModel):
@@ -441,6 +449,7 @@ def chat():
             surged_gates=surged_gates,
             volunteers_active=volunteers_active,
             accessibility_profile=accessibility_profile,
+            language=req.language,
             **config
         )
     except ValueError as exc:

@@ -521,5 +521,26 @@ def test_cors_headers(client):
     assert res.headers.get("Access-Control-Allow-Origin") == "*"
 
 
+def test_multilingual_chat_validation_and_translation(client, monkeypatch):
+    import app as flask_app_module
+    flask_app_module.IP_LIMITS.clear()
+
+    # Force get_server_ai_config to return demo mode
+    monkeypatch.setattr(flask_app_module, "get_server_ai_config", lambda: {"provider": "demo"})
+
+    # 1. Accept valid languages
+    res = client.post("/api/chat", json={"message": "Hola", "language": "es"})
+    assert res.status_code == 200
+    body = res.get_json()
+    assert "reply" in body
+    # Verify it translated the mock response prefix
+    assert "Modo de demostración" in body["reply"]
+
+    # 2. Reject unsupported languages
+    res2 = client.post("/api/chat", json={"message": "Hello", "language": "de"})
+    assert res2.status_code == 400
+    assert res2.get_json()["error"] == "invalid_parameters"
+
+
 
 
