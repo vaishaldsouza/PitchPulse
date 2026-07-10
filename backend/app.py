@@ -12,6 +12,8 @@ Endpoints:
 """
 
 import os
+import time
+from collections import defaultdict
 from threading import Lock
 from time import strftime
 from urllib.parse import urlparse
@@ -20,6 +22,52 @@ from flask import Flask, request, jsonify, send_from_directory
 from assistant import StadiumAssistant, get_live_status
 
 app = Flask(__name__, static_folder="../frontend", static_url_path="")
+
+# Token-bucket rate limiter for API protection
+class TokenBucket:
+    def __init__(self, capacity=30, refill_rate=0.5):
+        self.capacity = capacity
+        self.refill_rate = refill_rate
+        self.tokens = capacity
+        self.last_update = time.time()
+        self.lock = Lock()
+
+    def consume(self) -> bool:
+        with self.lock:
+            now = time.time()
+            elapsed = now - self.last_update
+            self.last_update = now
+            self.tokens = min(self.capacity, self.tokens + elapsed * self.refill_rate)
+            if self.tokens >= 1.0:
+                self.tokens -= 1.0
+                return True
+            return False
+
+IP_LIMITS = defaultdict(lambda: TokenBucket(30, 0.5))
+
+@app.before_request
+def rate_limit():
+    if request.path == "/api/chat":
+        ip = request.remote_addr or "unknown"
+        if not IP_LIMITS[ip].consume():
+            res = jsonify({"error": "rate_limit_exceeded", "detail": "Too many requests. Please try again later."})
+            res.headers["Retry-After"] = "2"
+            return res, 429
+
+@app.after_request
+def add_security_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "script-src 'self' 'unsafe-inline'; "
+        "connect-src 'self'; "
+        "img-src 'self' data:;"
+    )
+    return response
 
 _assistant = None
 SUPPORTED_PROVIDERS = {"demo", "anthropic", "openai", "gemini", "openai_compatible"}

@@ -366,7 +366,10 @@ def test_extreme_congestion_rerouting():
     # If Gate A is extremely congested (95%) and Gate B is clear (10%),
     # Gate B should be recommended, and the alert list should contain a rerouting recommendation
     baseline = {"Gate A": 0.95, "Gate B": 0.10, "Gate C": 0.30, "Gate D": 0.40}
-    status = get_live_status(surged_gates={"Gate A": 0.95, "Gate B": 0.10}, alert_threshold=0.75)
+    status = get_live_status(
+        surged_gates={"Gate A": 0.95, "Gate B": 0.10, "Gate C": 0.30, "Gate D": 0.40},
+        alert_threshold=0.75
+    )
     
     assert status["recommended_gate"] == "Gate B"
     # An alert should suggest moving volunteers from the surged gate (Gate A) to the recommended gate (Gate B)
@@ -452,4 +455,37 @@ def test_accessibility_users_never_routed_through_inaccessible_gates():
         excluded_gates={"Gate A", "Gate B", "Gate D"}
     )
     assert best_accessible_none is None
+
+
+def test_security_headers(client):
+    res = client.get("/api/health")
+    assert res.headers["X-Content-Type-Options"] == "nosniff"
+    assert res.headers["X-Frame-Options"] == "DENY"
+    assert res.headers["Referrer-Policy"] == "no-referrer"
+    assert "default-src 'self'" in res.headers["Content-Security-Policy"]
+
+
+def test_rate_limiter(client, monkeypatch):
+    import app as flask_app_module
+    
+    # Reset IP limits to verify clean rate state
+    flask_app_module.IP_LIMITS.clear()
+    
+    class FakeAssistant:
+        def ask(self, *args, **kwargs):
+            return "ok"
+    
+    monkeypatch.setattr(flask_app_module, "get_assistant", lambda: FakeAssistant())
+    
+    # Send quick requests to deplete the bucket (capacity = 30 tokens)
+    for _ in range(30):
+        res = client.post("/api/chat", json={"message": "ping"})
+        assert res.status_code == 200
+        
+    # The 31st request should be rate-limited
+    res_limited = client.post("/api/chat", json={"message": "ping"})
+    assert res_limited.status_code == 429
+    assert res_limited.get_json()["error"] == "rate_limit_exceeded"
+    assert "Retry-After" in res_limited.headers
+
 
