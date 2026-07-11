@@ -74,7 +74,7 @@ def add_security_headers(response):
         "default-src 'self'; "
         "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; "
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-        "script-src 'self' 'unsafe-inline'; "
+        "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; "
         "connect-src 'self'; "
         "img-src 'self' data:;"
     )
