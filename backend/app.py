@@ -26,6 +26,12 @@ from assistant import StadiumAssistant, get_live_status
 
 app = Flask(__name__, static_folder="../public", static_url_path="")
 
+@app.before_request
+def fix_vercel_rewrite_path():
+    matched_path = request.headers.get("x-matched-path")
+    if matched_path and matched_path != request.path:
+        request.environ["PATH_INFO"] = matched_path
+
 # Configure CORS based on allowed origins environment variable
 allowed_origins_str = os.environ.get("ALLOWED_ORIGINS", "").strip()
 if allowed_origins_str:
