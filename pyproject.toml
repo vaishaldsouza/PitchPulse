@@ -1,3 +1,14 @@
+[project]
+name = "pitchpulse"
+version = "1.0.0"
+requires-python = ">=3.12"
+dependencies = [
+    "flask==3.0.3",
+    "anthropic==0.40.0",
+    "pydantic>=2.0",
+    "Flask-Cors>=4.0.0",
+]
+
 [tool.ruff]
 # Set linting standards
 line-length = 100
