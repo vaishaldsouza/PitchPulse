@@ -6,6 +6,7 @@
 <title>Stadium Access+ Operations Command Console</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Oswald:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="nexus-theme.css">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
@@ -52,42 +53,21 @@
     }
   }
 </script>
-<style>
-  body.high-contrast {
-    background-color: #000000 !important;
-    color: #ffffff !important;
-  }
-  body.high-contrast * {
-    background-color: transparent !important;
-    color: #ffffff !important;
-    border-color: #ffffff !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-  }
-  body.high-contrast button, 
-  body.high-contrast select, 
-  body.high-contrast input, 
-  body.high-contrast textarea {
-    border: 2px solid #ffffff !important;
-    color: #ffffff !important;
-    background-color: #000000 !important;
-  }
-</style>
 </head>
-<body class="bg-slate-50 dark:bg-darkBase text-slate-900 dark:text-slate-100 font-sans min-h-screen transition-colors duration-200">
+<body class="min-h-screen transition-colors duration-200">
 
   <div class="grid grid-cols-1 lg:grid-cols-[240px_1fr] xl:grid-cols-[240px_1fr_340px] gap-4 p-4 max-w-[1600px] mx-auto min-h-screen">
     
     <!-- Column 1: Sidebar Navigation -->
-    <aside class="bg-white dark:bg-darkSurface border border-slate-200 dark:border-darkBorder rounded-xl p-4 flex flex-col justify-between shadow-sm">
+    <aside class="panel rounded-xl p-4 flex flex-col justify-between shadow-sm">
       <div class="space-y-6">
         <!-- Branding -->
         <div>
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-primary-500 animate-ping"></span>
-            <span class="font-oswald text-xl font-bold tracking-wider text-primary-600 dark:text-primary-400">ACCESS+</span>
+            <span class="font-oswald text-xl font-bold tracking-wider text-[var(--color-accent)]">ACCESS+</span>
           </div>
-          <p class="text-[10px] font-mono text-slate-400 uppercase tracking-widest mt-1">Stadia Optimization</p>
+          <p class="text-[10px] font-mono text-[var(--color-ink-dim)] uppercase tracking-widest mt-1">Stadia Optimization</p>
         </div>
 
         <!-- Navigation Links -->
@@ -95,37 +75,37 @@
           <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-semibold rounded-lg bg-primary-50 dark:bg-primary-950/30 text-primary-700 dark:text-primary-400">
             📊 Console Panel
           </a>
-          <a href="/" class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-primary-950/10 hover:text-slate-900 dark:hover:text-slate-200 transition">
+          <a href="/" class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-600 dark:text-[var(--color-ink-dim)] hover:bg-slate-50 dark:hover:bg-primary-950/10 hover:text-slate-900 dark:hover:text-slate-200 transition">
             📢 Fan Assistant
           </a>
         </nav>
       </div>
 
       <!-- Footer / Status indicator -->
-      <div class="space-y-4 pt-4 border-t border-slate-100 dark:border-darkBorder">
+      <div class="space-y-4 pt-4 border-t border-[var(--color-border)]">
         <!-- Profile Card -->
-        <div class="flex items-center gap-3 p-2 bg-slate-50 dark:bg-darkBase/50 rounded-lg">
-          <div class="w-8 h-8 rounded-full bg-primary-600 text-white font-bold flex items-center justify-center text-xs shadow-inner">
+        <div class="flex items-center gap-3 p-2 bg-[var(--color-surface-raised)]/50 rounded-lg">
+          <div class="w-8 h-8 rounded-full bg-[var(--color-accent)] text-white font-bold flex items-center justify-center text-xs shadow-inner">
             DC
           </div>
           <div>
             <p class="text-xs font-bold leading-none">Duty Commander</p>
-            <span class="text-[9px] font-mono text-slate-400 uppercase">Sector 4</span>
+            <span class="text-[9px] font-mono text-[var(--color-ink-dim)] uppercase">Sector 4</span>
           </div>
         </div>
 
         <!-- API status indicators -->
         <div class="space-y-2 text-xs font-mono">
           <div class="flex items-center justify-between">
-            <span class="text-slate-400">State:</span>
-            <span class="inline-flex items-center gap-1 text-red-500 font-bold" id="statusTextWrapper">
+            <span class="text-[var(--color-ink-dim)]">State:</span>
+            <span class="inline-flex items-center gap-1 text-[var(--color-status-critical)] font-bold" id="statusTextWrapper">
               <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" id="statusDot"></span>
               <span id="statusText">Connecting</span>
             </span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-slate-400">Model:</span>
-            <span class="text-secondary-500 font-semibold truncate max-w-[120px]" id="providerBadge">Demo Mode</span>
+            <span class="text-[var(--color-ink-dim)]">Model:</span>
+            <span class="text-[var(--color-status-elevated)] font-semibold truncate max-w-[120px]" id="providerBadge">Demo Mode</span>
           </div>
         </div>
       </div>
@@ -135,16 +115,16 @@
     <main class="space-y-4">
       
       <!-- Top Utility Header Bar -->
-      <header class="bg-white dark:bg-darkSurface border border-slate-200 dark:border-darkBorder rounded-xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-sm">
+      <header class="panel rounded-xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-sm">
         <div class="flex items-center gap-3 flex-wrap">
-          <span class="bg-slate-100 dark:bg-darkBase px-3 py-1.5 rounded-lg text-xs font-bold font-mono text-slate-500 dark:text-slate-300" id="stadiumName">MetLife Stadium</span>
+          <span class="bg-[var(--color-surface-raised)] px-3 py-1.5 rounded-lg text-xs font-bold font-mono text-[var(--color-ink-muted)] dark:text-slate-300" id="stadiumName">MetLife Stadium</span>
           <span class="bg-primary-50 dark:bg-primary-950/20 border border-primary-200 dark:border-primary-800 text-primary-700 dark:text-primary-400 px-2.5 py-1 rounded-lg text-xs font-semibold" id="countdownTimer">Countdown: 20m to kickoff</span>
         </div>
         
         <div class="flex items-center gap-2">
           <!-- Accessibility and theme triggers -->
-          <button onclick="toggleA11yMode()" class="w-8 h-8 rounded-lg border border-slate-200 dark:border-darkBorder bg-slate-50 dark:bg-darkBase hover:bg-slate-100 dark:hover:bg-darkBorder flex items-center justify-center text-sm transition" title="Toggle accessibility theme">♿</button>
-          <button onclick="toggleTheme()" class="w-8 h-8 rounded-lg border border-slate-200 dark:border-darkBorder bg-slate-50 dark:bg-darkBase hover:bg-slate-100 dark:hover:bg-darkBorder flex items-center justify-center text-sm transition" id="themeToggleBtn" title="Toggle dark mode">🌙</button>
+          <button onclick="toggleA11yMode()" class="w-8 h-8 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-raised)] hover:bg-slate-100 dark:hover:bg-darkBorder flex items-center justify-center text-sm transition" title="Toggle accessibility theme">♿</button>
+          <button onclick="toggleTheme()" class="w-8 h-8 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-raised)] hover:bg-slate-100 dark:hover:bg-darkBorder flex items-center justify-center text-sm transition" id="themeToggleBtn" title="Toggle dark mode">🌙</button>
         </div>
       </header>
 
@@ -152,14 +132,14 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         
         <!-- Interactive Vector Map & Pathing -->
-        <section class="bg-white dark:bg-darkSurface border border-slate-200 dark:border-darkBorder rounded-xl p-4 shadow-sm flex flex-col justify-between min-h-[300px]">
+        <section class="panel rounded-xl p-4 shadow-sm flex flex-col justify-between min-h-[300px]">
           <div>
-            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-2">Step-Free Route & Mini-Map</h3>
-            <p class="text-xs text-slate-400 mb-4">Real-time status of routes and entrance gates.</p>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink-muted)] mb-2">Step-Free Route & Mini-Map</h3>
+            <p class="text-xs text-[var(--color-ink-dim)] mb-4">Real-time status of routes and entrance gates.</p>
           </div>
-          <div class="flex-1 bg-slate-900/10 border border-slate-100 dark:border-darkBorder rounded-lg p-2 flex items-center justify-center relative overflow-hidden h-[180px] bg-[radial-gradient(#1e3a35_1px,transparent_1px)] [background-size:16px_16px]">
+          <div class="flex-1 bg-[var(--color-surface-overlay)] border border-[var(--color-border)] rounded-lg p-2 flex items-center justify-center relative overflow-hidden h-[180px] bg-[radial-gradient(#1e3a35_1px,transparent_1px)] [background-size:16px_16px]">
             <!-- Vector Map SVG -->
-            <svg viewBox="0 0 400 200" class="w-full h-full text-slate-400" id="vectorMap">
+            <svg viewBox="0 0 400 200" class="w-full h-full text-[var(--color-ink-dim)]" id="vectorMap">
               <!-- Route links -->
               <line x1="60" y1="100" x2="200" y2="40" stroke="#475569" stroke-width="2" stroke-dasharray="4" id="path-a"></line>
               <line x1="340" y1="100" x2="200" y2="40" stroke="#475569" stroke-width="2" stroke-dasharray="4" id="path-b"></line>
@@ -192,85 +172,85 @@
         </section>
 
         <!-- Command AI Chat tester -->
-        <section class="bg-white dark:bg-darkSurface border border-slate-200 dark:border-darkBorder rounded-xl p-4 shadow-sm flex flex-col justify-between min-h-[300px]">
+        <section class="panel rounded-xl p-4 shadow-sm flex flex-col justify-between min-h-[300px]">
           <div>
-            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-2">AI Assistant Chat Module</h3>
-            <p class="text-xs text-slate-400 mb-3">Operator testing environment for localized queries.</p>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink-muted)] mb-2">AI Assistant Chat Module</h3>
+            <p class="text-xs text-[var(--color-ink-dim)] mb-3">Operator testing environment for localized queries.</p>
           </div>
-          <div class="flex-1 border border-slate-100 dark:border-darkBorder rounded-lg p-2 bg-slate-50 dark:bg-darkBase/40 overflow-y-auto max-h-[140px] text-xs space-y-2 mb-3" id="chatConsoleLog">
-            <div class="text-slate-400">System: Operational console mode active. Input query to test downstream grounding.</div>
+          <div class="flex-1 border border-[var(--color-border)] rounded-lg p-2 bg-[var(--color-surface-raised)]/40 overflow-y-auto max-h-[140px] text-xs space-y-2 mb-3" id="chatConsoleLog">
+            <div class="text-[var(--color-ink-dim)]">System: Operational console mode active. Input query to test downstream grounding.</div>
           </div>
           <form class="flex gap-2" onsubmit="submitConsoleChat(event)">
             <label for="consoleChatQuery" class="visually-hidden">AI Query</label>
-            <input type="text" id="consoleChatQuery" placeholder="Ask AI e.g. Route from Gate A..." class="flex-1 text-xs border border-slate-200 dark:border-darkBorder rounded px-2.5 py-1.5 bg-white dark:bg-darkBase text-slate-800 dark:text-slate-200 outline-none focus:ring-1 focus:ring-primary-500" />
-            <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs px-3 py-1.5 rounded transition">Test</button>
+            <input type="text" id="consoleChatQuery" placeholder="Ask AI e.g. Route from Gate A..." class="flex-1 text-xs border border-[var(--color-border)] rounded px-2.5 py-1.5 bg-white dark:bg-darkBase text-[var(--color-ink)] outline-none focus:ring-1 focus:ring-primary-500" />
+            <button type="submit" class="bg-[var(--color-accent)] hover:bg-[var(--color-accent-strong)] text-white font-bold text-xs px-3 py-1.5 rounded transition">Test</button>
           </form>
         </section>
 
         <!-- Accessibility Profile Selector Controls -->
-        <section class="bg-white dark:bg-darkSurface border border-slate-200 dark:border-darkBorder rounded-xl p-4 shadow-sm space-y-4">
+        <section class="panel rounded-xl p-4 shadow-sm space-y-4">
           <div>
-            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-1">Accessibility Profile Group Selectors</h3>
-            <p class="text-xs text-slate-400">Inspect active rules and guidelines.</p>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink-muted)] mb-1">Accessibility Profile Group Selectors</h3>
+            <p class="text-xs text-[var(--color-ink-dim)]">Inspect active rules and guidelines.</p>
           </div>
           <div class="grid grid-cols-2 gap-2 text-xs">
-            <button onclick="previewA11yRules('wheelchair')" class="p-2 border border-slate-200 dark:border-darkBorder rounded hover:bg-slate-50 dark:hover:bg-darkBase/40 text-left transition font-semibold">♿ Wheelchair</button>
-            <button onclick="previewA11yRules('sensory')" class="p-2 border border-slate-200 dark:border-darkBorder rounded hover:bg-slate-50 dark:hover:bg-darkBase/40 text-left transition font-semibold">🎧 Sensory</button>
-            <button onclick="previewA11yRules('companion')" class="p-2 border border-slate-200 dark:border-darkBorder rounded hover:bg-slate-50 dark:hover:bg-darkBase/40 text-left transition font-semibold">👥 Companion</button>
-            <button onclick="previewA11yRules('asl')" class="p-2 border border-slate-200 dark:border-darkBorder rounded hover:bg-slate-50 dark:hover:bg-darkBase/40 text-left transition font-semibold">🤟 ASL Support</button>
+            <button onclick="previewA11yRules('wheelchair')" class="p-2 border border-[var(--color-border)] rounded hover:bg-[var(--color-surface-raised)]/40 text-left transition font-semibold">♿ Wheelchair</button>
+            <button onclick="previewA11yRules('sensory')" class="p-2 border border-[var(--color-border)] rounded hover:bg-[var(--color-surface-raised)]/40 text-left transition font-semibold">🎧 Sensory</button>
+            <button onclick="previewA11yRules('companion')" class="p-2 border border-[var(--color-border)] rounded hover:bg-[var(--color-surface-raised)]/40 text-left transition font-semibold">👥 Companion</button>
+            <button onclick="previewA11yRules('asl')" class="p-2 border border-[var(--color-border)] rounded hover:bg-[var(--color-surface-raised)]/40 text-left transition font-semibold">🤟 ASL Support</button>
           </div>
-          <div class="p-3 bg-slate-50 dark:bg-darkBase/50 rounded-lg text-[11px] text-slate-500 dark:text-slate-400" id="rulePreviewBox">
+          <div class="p-3 bg-[var(--color-surface-raised)]/50 rounded-lg text-[11px] text-[var(--color-ink-muted)] dark:text-[var(--color-ink-dim)]" id="rulePreviewBox">
             Select a profile to review operational constraints.
           </div>
         </section>
 
         <!-- UI Sizing adjustments panel -->
-        <section class="bg-white dark:bg-darkSurface border border-slate-200 dark:border-darkBorder rounded-xl p-4 shadow-sm space-y-4">
+        <section class="panel rounded-xl p-4 shadow-sm space-y-4">
           <div>
-            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-1">Dynamic UI Tuning Panel</h3>
-            <p class="text-xs text-slate-400">Scale interface ratios and warnings.</p>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink-muted)] mb-1">Dynamic UI Tuning Panel</h3>
+            <p class="text-xs text-[var(--color-ink-dim)]">Scale interface ratios and warnings.</p>
           </div>
           <div class="space-y-3">
             <div class="flex items-center justify-between text-xs">
-              <span class="text-slate-400 font-semibold">Alert Proximity Threshold:</span>
-              <span class="text-secondary-500 font-bold" id="thresholdDisplay">75%</span>
+              <span class="text-[var(--color-ink-dim)] font-semibold">Alert Proximity Threshold:</span>
+              <span class="text-[var(--color-status-elevated)] font-bold" id="thresholdDisplay">75%</span>
             </div>
             <label for="thresholdSlider" class="visually-hidden">Alert Threshold</label>
             <input type="range" id="thresholdSlider" min="25" max="95" value="75" step="5" onchange="updateThreshold(this.value)" class="w-full accent-secondary-500 cursor-pointer" />
             
-            <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-darkBorder">
-              <span class="text-xs text-slate-400 font-semibold">Font Scaling Factor:</span>
+            <div class="flex items-center justify-between pt-2 border-t border-[var(--color-border)]">
+              <span class="text-xs text-[var(--color-ink-dim)] font-semibold">Font Scaling Factor:</span>
               <div class="flex gap-1.5">
-                <button onclick="changeFontSize('sm')" class="px-2 py-0.5 border border-slate-200 dark:border-darkBorder rounded text-[10px] font-bold">SM</button>
-                <button onclick="changeFontSize('md')" class="px-2 py-0.5 border border-slate-200 dark:border-darkBorder rounded text-[10px] font-bold bg-primary-600 text-white">MD</button>
-                <button onclick="changeFontSize('lg')" class="px-2 py-0.5 border border-slate-200 dark:border-darkBorder rounded text-[10px] font-bold">LG</button>
+                <button onclick="changeFontSize('sm')" class="px-2 py-0.5 border border-[var(--color-border)] rounded text-[10px] font-bold">SM</button>
+                <button onclick="changeFontSize('md')" class="px-2 py-0.5 border border-[var(--color-border)] rounded text-[10px] font-bold bg-[var(--color-accent)] text-white">MD</button>
+                <button onclick="changeFontSize('lg')" class="px-2 py-0.5 border border-[var(--color-border)] rounded text-[10px] font-bold">LG</button>
               </div>
             </div>
           </div>
         </section>
 
         <!-- Security & Performance monitor -->
-        <section class="bg-white dark:bg-darkSurface border border-slate-200 dark:border-darkBorder rounded-xl p-4 shadow-sm col-span-1 md:col-span-2 space-y-4">
+        <section class="panel rounded-xl p-4 shadow-sm col-span-1 md:col-span-2 space-y-4">
           <div>
-            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-1">Security & Performance Monitor</h3>
-            <p class="text-xs text-slate-400">Real-time telemetry and api bounds.</p>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink-muted)] mb-1">Security & Performance Monitor</h3>
+            <p class="text-xs text-[var(--color-ink-dim)]">Real-time telemetry and api bounds.</p>
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div class="p-3 bg-slate-50 dark:bg-darkBase/50 border border-slate-100 dark:border-darkBorder rounded-lg">
-              <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Rate Limit Bucket</p>
-              <p class="text-lg font-bold text-primary-500 mt-1">30 / 30 <span class="text-[10px] font-medium text-slate-400">tokens</span></p>
+            <div class="p-3 bg-[var(--color-surface-raised)]/50 border border-[var(--color-border)] rounded-lg">
+              <p class="text-[10px] text-[var(--color-ink-dim)] font-semibold uppercase tracking-wider">Rate Limit Bucket</p>
+              <p class="text-lg font-bold text-[var(--color-accent)] mt-1">30 / 30 <span class="text-[10px] font-medium text-[var(--color-ink-dim)]">tokens</span></p>
             </div>
-            <div class="p-3 bg-slate-50 dark:bg-darkBase/50 border border-slate-100 dark:border-darkBorder rounded-lg">
-              <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">CORS Origin Security</p>
-              <p class="text-lg font-bold text-primary-500 mt-1">Active</p>
+            <div class="p-3 bg-[var(--color-surface-raised)]/50 border border-[var(--color-border)] rounded-lg">
+              <p class="text-[10px] text-[var(--color-ink-dim)] font-semibold uppercase tracking-wider">CORS Origin Security</p>
+              <p class="text-lg font-bold text-[var(--color-accent)] mt-1">Active</p>
             </div>
-            <div class="p-3 bg-slate-50 dark:bg-darkBase/50 border border-slate-100 dark:border-darkBorder rounded-lg">
-              <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">Pydantic Validation</p>
-              <p class="text-lg font-bold text-primary-500 mt-1">Strict</p>
+            <div class="p-3 bg-[var(--color-surface-raised)]/50 border border-[var(--color-border)] rounded-lg">
+              <p class="text-[10px] text-[var(--color-ink-dim)] font-semibold uppercase tracking-wider">Pydantic Validation</p>
+              <p class="text-lg font-bold text-[var(--color-accent)] mt-1">Strict</p>
             </div>
-            <div class="p-3 bg-slate-50 dark:bg-darkBase/50 border border-slate-100 dark:border-darkBorder rounded-lg">
-              <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">API Latency</p>
-              <p class="text-lg font-bold text-primary-500 mt-1">12ms</p>
+            <div class="p-3 bg-[var(--color-surface-raised)]/50 border border-[var(--color-border)] rounded-lg">
+              <p class="text-[10px] text-[var(--color-ink-dim)] font-semibold uppercase tracking-wider">API Latency</p>
+              <p class="text-lg font-bold text-[var(--color-accent)] mt-1">12ms</p>
             </div>
           </div>
         </section>
@@ -282,47 +262,47 @@
     <aside class="space-y-4">
       
       <!-- Scenario Actions Card -->
-      <section class="bg-white dark:bg-darkSurface border border-slate-200 dark:border-darkBorder rounded-xl p-4 shadow-sm space-y-4">
-        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500">Scenario Presets</h3>
+      <section class="panel rounded-xl p-4 shadow-sm space-y-4">
+        <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink-muted)]">Scenario Presets</h3>
         <div class="grid grid-cols-2 gap-2 text-xs">
-          <button onclick="triggerPreset('normal')" class="p-2 border border-slate-200 dark:border-darkBorder rounded hover:bg-slate-50 dark:hover:bg-darkBase/40 transition text-left">🟢 Normal</button>
-          <button onclick="triggerPreset('surge')" class="p-2 border border-slate-200 dark:border-darkBorder rounded hover:bg-slate-50 dark:hover:bg-darkBase/40 transition text-left font-semibold">⚡ Peak Surge</button>
-          <button onclick="triggerPreset('closure')" class="p-2 border border-slate-200 dark:border-darkBorder rounded hover:bg-slate-50 dark:hover:bg-darkBase/40 transition text-left font-semibold">🚨 Gate B Closed</button>
-          <button onclick="triggerPreset('transit')" class="p-2 border border-slate-200 dark:border-darkBorder rounded hover:bg-slate-50 dark:hover:bg-darkBase/40 transition text-left">🌧 Transit Delay</button>
+          <button onclick="triggerPreset('normal')" class="p-2 border border-[var(--color-border)] rounded hover:bg-[var(--color-surface-raised)]/40 transition text-left">🟢 Normal</button>
+          <button onclick="triggerPreset('surge')" class="p-2 border border-[var(--color-border)] rounded hover:bg-[var(--color-surface-raised)]/40 transition text-left font-semibold">⚡ Peak Surge</button>
+          <button onclick="triggerPreset('closure')" class="p-2 border border-[var(--color-border)] rounded hover:bg-[var(--color-surface-raised)]/40 transition text-left font-semibold">🚨 Gate B Closed</button>
+          <button onclick="triggerPreset('transit')" class="p-2 border border-[var(--color-border)] rounded hover:bg-[var(--color-surface-raised)]/40 transition text-left">🌧 Transit Delay</button>
         </div>
-        <button id="transportDelayBtn" class="w-full bg-slate-100 hover:bg-slate-200 dark:bg-darkBase dark:hover:bg-darkBorder border border-slate-200 dark:border-darkBorder text-xs font-bold py-2 rounded transition">
+        <button id="transportDelayBtn" class="w-full bg-slate-100 hover:bg-slate-200 dark:bg-darkBase dark:hover:bg-darkBorder border border-[var(--color-border)] text-xs font-bold py-2 rounded transition">
           Toggle Global Transit Delay
         </button>
       </section>
 
       <!-- Seating Heatmap Canvas Card -->
-      <section class="bg-white dark:bg-darkSurface border border-slate-200 dark:border-darkBorder rounded-xl p-4 shadow-sm flex flex-col justify-between">
+      <section class="panel rounded-xl p-4 shadow-sm flex flex-col justify-between">
         <div>
-          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-1">Live Stadium Heatmap</h3>
-          <p class="text-xs text-slate-400 mb-3">Capacity density mapping by bowl rings.</p>
+          <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink-muted)] mb-1">Live Stadium Heatmap</h3>
+          <p class="text-xs text-[var(--color-ink-dim)] mb-3">Capacity density mapping by bowl rings.</p>
         </div>
-        <div class="bg-slate-900/10 border border-slate-100 dark:border-darkBorder rounded-lg p-2 flex items-center justify-center relative overflow-hidden h-[160px]">
+        <div class="bg-[var(--color-surface-overlay)] border border-[var(--color-border)] rounded-lg p-2 flex items-center justify-center relative overflow-hidden h-[160px]">
           <canvas id="heatmapCanvas" width="300" height="150" class="w-full h-full max-w-[300px] max-h-[150px]"></canvas>
         </div>
       </section>
 
       <!-- Active Alerts Alerts list -->
-      <section class="bg-white dark:bg-darkSurface border border-slate-200 dark:border-darkBorder rounded-xl p-4 shadow-sm space-y-3">
-        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500">Live Active Alerts</h3>
+      <section class="panel rounded-xl p-4 shadow-sm space-y-3">
+        <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink-muted)]">Live Active Alerts</h3>
         <div id="alertsList" class="space-y-2 max-h-[180px] overflow-y-auto">
           <!-- dynamic alert items -->
         </div>
       </section>
 
       <!-- Incident Event logs -->
-      <section class="bg-white dark:bg-darkSurface border border-slate-200 dark:border-darkBorder rounded-xl p-4 shadow-sm flex flex-col gap-3">
-        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500">Incident Event Log</h3>
+      <section class="panel rounded-xl p-4 shadow-sm flex flex-col gap-3">
+        <h3 class="text-sm font-bold uppercase tracking-wider text-[var(--color-ink-muted)]">Incident Event Log</h3>
         
-        <div class="flex gap-1.5 border-b border-slate-100 dark:border-darkBorder pb-2 overflow-x-auto text-[10px]">
-          <button onclick="filterLogs('ALL', this)" class="log-tab px-2 py-0.5 font-bold rounded bg-slate-100 dark:bg-darkBase hover:bg-slate-200 text-slate-500 dark:text-slate-400 active">ALL</button>
-          <button onclick="filterLogs('ALERT', this)" class="log-tab px-2 py-0.5 font-bold rounded bg-slate-100 dark:bg-darkBase hover:bg-slate-200 text-slate-500 dark:text-slate-400">ALERTS</button>
-          <button onclick="filterLogs('INCIDENT', this)" class="log-tab px-2 py-0.5 font-bold rounded bg-slate-100 dark:bg-darkBase hover:bg-slate-200 text-slate-500 dark:text-slate-400">INCIDENTS</button>
-          <button onclick="filterLogs('STAFF_ACTION', this)" class="log-tab px-2 py-0.5 font-bold rounded bg-slate-100 dark:bg-darkBase hover:bg-slate-200 text-slate-500 dark:text-slate-400">STAFF</button>
+        <div class="flex gap-1.5 border-b border-[var(--color-border)] pb-2 overflow-x-auto text-[10px]">
+          <button onclick="filterLogs('ALL', this)" class="log-tab px-2 py-0.5 font-bold rounded bg-[var(--color-surface-raised)] hover:bg-slate-200 text-[var(--color-ink-muted)] dark:text-[var(--color-ink-dim)] active">ALL</button>
+          <button onclick="filterLogs('ALERT', this)" class="log-tab px-2 py-0.5 font-bold rounded bg-[var(--color-surface-raised)] hover:bg-slate-200 text-[var(--color-ink-muted)] dark:text-[var(--color-ink-dim)]">ALERTS</button>
+          <button onclick="filterLogs('INCIDENT', this)" class="log-tab px-2 py-0.5 font-bold rounded bg-[var(--color-surface-raised)] hover:bg-slate-200 text-[var(--color-ink-muted)] dark:text-[var(--color-ink-dim)]">INCIDENTS</button>
+          <button onclick="filterLogs('STAFF_ACTION', this)" class="log-tab px-2 py-0.5 font-bold rounded bg-[var(--color-surface-raised)] hover:bg-slate-200 text-[var(--color-ink-muted)] dark:text-[var(--color-ink-dim)]">STAFF</button>
         </div>
 
         <ul id="changeLog" class="space-y-2 max-h-[200px] overflow-y-auto text-[11px] font-mono">
@@ -335,7 +315,7 @@
   </div>
 
   <!-- Footer -->
-  <footer class="py-6 text-center text-xs text-slate-400 bg-transparent border-t border-slate-200 dark:border-darkBorder max-w-[1600px] mx-auto mt-6">
+  <footer class="py-6 text-center text-xs text-[var(--color-ink-dim)] bg-transparent border-t border-[var(--color-border)] max-w-[1600px] mx-auto mt-6">
     Refreshes every 5s · Live crowd data is simulated for this demo build
   </footer>
 
@@ -356,7 +336,7 @@
         const statusDot = document.getElementById('statusDot');
         statusDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]';
         document.getElementById('statusText').textContent = 'Live Connected';
-        document.getElementById('statusTextWrapper').className = 'inline-flex items-center gap-1 text-emerald-500 font-bold';
+        document.getElementById('statusTextWrapper').className = 'inline-flex items-center gap-1 text-[var(--color-status-normal)] font-bold';
 
         // AI Provider badge
         const providerBadge = document.getElementById('providerBadge');
@@ -407,16 +387,16 @@
         const delayButton = document.getElementById('transportDelayBtn');
         delayButton.textContent = data.transport_delay ? 'Clear Global Transit Delay' : 'Toggle Global Transit Delay';
         if (data.transport_delay) {
-          delayButton.className = 'w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded transition text-xs shadow-md shadow-red-500/20 animate-pulse';
+          delayButton.className = 'w-full bg-[var(--color-status-critical)] hover:bg-[var(--color-status-critical-text)] text-white font-bold py-2 rounded transition text-xs shadow-md shadow-red-500/20 animate-pulse';
         } else {
-          delayButton.className = 'w-full bg-slate-100 hover:bg-slate-200 dark:bg-darkBase dark:hover:bg-darkBorder border border-slate-200 dark:border-darkBorder text-xs font-bold py-2 rounded transition';
+          delayButton.className = 'w-full bg-slate-100 hover:bg-slate-200 dark:bg-darkBase dark:hover:bg-darkBorder border border-[var(--color-border)] text-xs font-bold py-2 rounded transition';
         }
 
         // Render Alerts
         const alertsList = document.getElementById('alertsList');
         if (data.alerts.length === 0) {
           alertsList.innerHTML = `
-            <div class="p-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/50 rounded-lg text-xs text-emerald-800 dark:text-emerald-400">
+            <div class="p-3 bg-[var(--color-status-normal-bg)] border border-[var(--color-status-normal)] rounded-lg text-xs text-[var(--color-status-normal-text)]">
               ✓ [STATUS: NOMINAL] All stadium gates operating within nominal ranges.
             </div>`;
         } else {
@@ -424,14 +404,14 @@
             let actionBtn = '';
             let isMitigated = a.includes('Mitigated');
             let severity = '[SEVERITY: WARNING]';
-            let bgClass = 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-400';
+            let bgClass = 'bg-[var(--color-status-elevated-bg)] border-[var(--color-status-elevated)] text-[var(--color-status-elevated-text)]';
             
             if (isMitigated) {
               severity = '[STATUS: MITIGATED]';
-              bgClass = 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900/50 text-blue-800 dark:text-blue-400';
+              bgClass = 'bg-[var(--color-accent-dim)] border-[var(--color-accent)] text-[var(--color-accent-strong)]';
             } else if (a.includes('closed') || a.includes('delay')) {
               severity = '[SEVERITY: CRITICAL]';
-              bgClass = 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-400';
+              bgClass = 'bg-[var(--color-status-critical-bg)] border-[var(--color-status-critical)] text-[var(--color-status-critical-text)]';
             }
 
             if (a.includes('Suggested rerouting: Move volunteers from')) {
@@ -440,7 +420,7 @@
                 const fromGate = match[1];
                 const toGate = match[2];
                 if (toGate !== 'another open gate') {
-                  actionBtn = `<button class="mt-2 bg-secondary-500 hover:bg-secondary-600 text-white font-bold text-[10px] px-2 py-1 rounded shadow" onclick="deployVolunteers('${fromGate}', '${toGate}')">Route Volunteers</button>`;
+                  actionBtn = `<button class="mt-2 bg-[var(--color-status-elevated)] hover:bg-[var(--color-status-elevated-text)] text-white font-bold text-[10px] px-2 py-1 rounded shadow" onclick="deployVolunteers('${fromGate}', '${toGate}')">Route Volunteers</button>`;
                 }
               }
             }
@@ -467,7 +447,7 @@
         const statusDot = document.getElementById('statusDot');
         statusDot.className = 'w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse';
         document.getElementById('statusText').textContent = 'Disconnected (Retrying)';
-        document.getElementById('statusTextWrapper').className = 'inline-flex items-center gap-1 text-red-500 font-bold';
+        document.getElementById('statusTextWrapper').className = 'inline-flex items-center gap-1 text-[var(--color-status-critical)] font-bold';
       }
     }
 
@@ -547,25 +527,25 @@
       });
 
       if (filteredLogs.length === 0) {
-        changeLogEl.innerHTML = `<li class="p-2 text-center text-slate-400 dark:text-slate-500">No events logged matching filter.</li>`;
+        changeLogEl.innerHTML = `<li class="p-2 text-center text-[var(--color-ink-dim)] dark:text-[var(--color-ink-muted)]">No events logged matching filter.</li>`;
         return;
       }
 
       changeLogEl.innerHTML = filteredLogs.map(item => {
         let borderCol = 'border-slate-400';
-        let textCol = 'text-slate-500';
-        if (item.type === 'INCIDENT') { borderCol = 'border-red-500'; textCol = 'text-red-500'; }
-        else if (item.type === 'ALERT') { borderCol = 'border-pink-500'; textCol = 'text-pink-500'; }
-        else if (item.type === 'ROUTE_RECOM') { borderCol = 'border-amber-500'; textCol = 'text-amber-500'; }
-        else if (item.type === 'STAFF_ACTION') { borderCol = 'border-blue-500'; textCol = 'text-blue-500'; }
+        let textCol = 'text-[var(--color-ink-muted)]';
+        if (item.type === 'INCIDENT') { borderCol = 'border-[var(--color-status-critical)]'; textCol = 'text-[var(--color-status-critical)]'; }
+        else if (item.type === 'ALERT') { borderCol = 'border-[var(--color-status-high)]'; textCol = 'text-[var(--color-status-high)]'; }
+        else if (item.type === 'ROUTE_RECOM') { borderCol = 'border-[var(--color-status-elevated)]'; textCol = 'text-[var(--color-status-elevated)]'; }
+        else if (item.type === 'STAFF_ACTION') { borderCol = 'border-[var(--color-accent)]'; textCol = 'text-[var(--color-accent)]'; }
 
         return `
-          <li class="p-2 bg-slate-50 dark:bg-darkBase/40 rounded border-l-2 ${borderCol} flex flex-col gap-0.5">
+          <li class="p-2 bg-[var(--color-surface-raised)]/40 rounded border-l-2 ${borderCol} flex flex-col gap-0.5">
             <div class="flex justify-between text-[9px] font-bold">
               <span class="${textCol}">${item.type}</span>
-              <span class="text-slate-400">${item.time}</span>
+              <span class="text-[var(--color-ink-dim)]">${item.time}</span>
             </div>
-            <div class="text-[10px] text-slate-700 dark:text-slate-300 leading-normal">${item.message}</div>
+            <div class="text-[10px] text-[var(--color-ink)] leading-normal">${item.message}</div>
           </li>`;
       }).join('');
     }
@@ -573,9 +553,9 @@
     function filterLogs(category, btnElement) {
       activeLogFilter = category;
       document.querySelectorAll('.log-tab').forEach(tab => {
-        tab.className = 'log-tab px-2 py-0.5 font-bold rounded bg-slate-100 dark:bg-darkBase hover:bg-slate-200 text-slate-500 dark:text-slate-400';
+        tab.className = 'log-tab px-2 py-0.5 font-bold rounded bg-[var(--color-surface-raised)] hover:bg-slate-200 text-[var(--color-ink-muted)] dark:text-[var(--color-ink-dim)]';
       });
-      btnElement.className = 'log-tab px-2 py-0.5 font-bold rounded bg-primary-600 text-white active';
+      btnElement.className = 'log-tab px-2 py-0.5 font-bold rounded bg-[var(--color-accent)] text-white active';
       if (cachedStatus) {
         renderLogsList(cachedStatus.change_log);
       }
@@ -645,7 +625,7 @@
 
       const consoleLog = document.getElementById('chatConsoleLog');
       const userDiv = document.createElement('div');
-      userDiv.className = 'text-blue-500 font-semibold';
+      userDiv.className = 'text-[var(--color-accent)] font-semibold';
       userDiv.textContent = `Operator: ${inputVal}`;
       consoleLog.appendChild(userDiv);
       consoleLog.scrollTop = consoleLog.scrollHeight;
@@ -666,7 +646,7 @@
         consoleLog.scrollTop = consoleLog.scrollHeight;
       } catch (err) {
         const errDiv = document.createElement('div');
-        errDiv.className = 'text-red-500';
+        errDiv.className = 'text-[var(--color-status-critical)]';
         errDiv.textContent = 'System: Error dispatching assistant request.';
         consoleLog.appendChild(errDiv);
         consoleLog.scrollTop = consoleLog.scrollHeight;
@@ -734,3 +714,4 @@
   </script>
 </body>
 </html>
+

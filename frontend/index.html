@@ -6,9 +6,11 @@
 <title>PitchPulse — Context-Aware Stadium Assistant</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="nexus-theme.css">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
+    darkMode: 'class',
     theme: {
       extend: {
         fontFamily: {
@@ -22,69 +24,44 @@
     }
   }
 </script>
-<style>
-  body.high-contrast {
-    background-color: #000000 !important;
-    color: #ffffff !important;
-  }
-  body.high-contrast * {
-    background-color: transparent !important;
-    color: #ffffff !important;
-    border-color: #ffffff !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-  }
-  body.high-contrast button, 
-  body.high-contrast select, 
-  body.high-contrast input, 
-  body.high-contrast textarea {
-    border: 2px solid #ffffff !important;
-    color: #ffffff !important;
-    background-color: #000000 !important;
-  }
-  body.high-contrast button:hover {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-  }
-</style>
 </head>
-<body class="bg-[#F8F9FA] text-gray-800 font-sans min-h-screen flex flex-col transition-colors duration-250">
+<body class="min-h-screen flex flex-col transition-colors duration-250">
 
   <!-- Header -->
-  <header class="bg-stadiumgreen text-white px-6 py-4 flex flex-wrap items-center justify-between gap-4 border-b-4 border-stadiumgreenhover">
+  <header class="panel px-6 py-4 flex flex-wrap items-center justify-between gap-4 border-b">
     <div class="flex items-center">
       <!-- Soccer Ball Logo SVG -->
-      <svg class="w-10 h-10 mr-3 text-white fill-current" viewBox="0 0 24 24" aria-hidden="true">
+      <svg class="w-10 h-10 mr-3 text-[var(--color-status-normal)] fill-current" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12,2A10,10,0,1,0,22,12,10,10,0,0,0,12,2Zm0,1.5A8.48,8.48,0,0,1,16.5,5.1l-1.3,2.2a2.3,2.3,0,0,0-1,.2L12,6.1l-2.2,1.4a2.3,2.3,0,0,0-1-.2L7.5,5.1A8.48,8.48,0,0,1,12,3.5Zm-5,14a8.47,8.47,0,0,1-3.1-4l2.4-1.2A2.46,2.46,0,0,0,7,13.6l.8,2.4Zm8,1.4a8.47,8.47,0,0,1-6,0l1.3-2.2a2.3,2.3,0,0,0,1.2-.2l2.2,1.4ZM20.1,13.5a8.47,8.47,0,0,1-3.1,4l-1.3-2.2a2.3,2.3,0,0,0,.8-1.2l2.4,1.2ZM12,8.8l2.2,1.4a1.8,1.8,0,0,1,.8,1.2L14,13.6l-2,1.2-2-1.2-1-2.2A1.8,1.8,0,0,1,9.8,10.2Z"/>
       </svg>
       <div>
-        <h1 class="text-2xl font-bold tracking-tight" id="brand-title">PitchPulse</h1>
-        <p class="text-xs text-gray-200" id="brand-subtitle">Accessible wayfinding for FIFA World Cup 2026</p>
+        <h1 class="text-2xl font-bold tracking-tight text-gradient" id="brand-title">PitchPulse</h1>
+        <p class="text-xs text-[var(--color-ink-dim)]" id="brand-subtitle">Accessible wayfinding for FIFA World Cup 2026</p>
       </div>
     </div>
     
     <div class="flex items-center gap-4 ml-auto flex-wrap">
       <!-- Live Connection State Dot -->
-      <span class="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 px-2 py-1 rounded text-xs text-gray-200" id="statusIndicator">
-        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse" id="statusDot"></span>
+      <span class="inline-flex items-center gap-1.5 bg-[var(--color-surface-raised)] border border-[var(--color-border)] px-2 py-1 rounded text-xs text-[var(--color-ink-muted)]" id="statusIndicator">
+        <span class="w-2 h-2 rounded-full bg-[var(--color-status-critical)] animate-pulse" id="statusDot"></span>
         <span id="statusText">Connecting...</span>
       </span>
 
       <!-- AI Provider Badge -->
-      <span class="bg-amber-400/10 border border-amber-400/20 text-amber-300 font-semibold px-2.5 py-1 rounded text-xs tracking-wide uppercase" id="providerBadge">
+      <span class="bg-[var(--color-status-elevated-bg)] border border-[var(--color-status-elevated)] text-[var(--color-status-elevated-text)] font-semibold px-2.5 py-1 rounded text-xs tracking-wide uppercase" id="providerBadge">
         Demo Mode
       </span>
 
       <div class="flex flex-col text-right">
-        <label for="lang-select" class="text-xs text-gray-200 font-semibold mb-1" id="lang-label">Language</label>
-        <select id="lang-select" onchange="changeLanguage(this.value)" class="text-sm bg-white text-gray-800 border border-gray-300 rounded px-2 py-1 outline-none cursor-pointer focus:ring-1 focus:ring-stadiumgreen w-28">
+        <label for="lang-select" class="text-xs text-[var(--color-ink-muted)] font-semibold mb-1" id="lang-label">Language</label>
+        <select id="lang-select" onchange="changeLanguage(this.value)" class="text-sm bg-[var(--color-surface-raised)] text-[var(--color-ink)] border border-[var(--color-border)] rounded px-2 py-1 outline-none cursor-pointer focus:ring-1 focus:ring-[var(--color-accent)] w-28">
           <option value="en">English</option>
           <option value="es">Español</option>
           <option value="fr">Français</option>
         </select>
       </div>
 
-      <button onclick="toggleA11yMode()" class="border-2 border-white text-white font-semibold rounded px-4 py-2 hover:bg-white/10 transition text-sm self-end" id="a11y-btn">
+      <button onclick="toggleA11yMode()" class="border border-[var(--color-border-strong)] text-[var(--color-ink)] font-semibold rounded px-4 py-2 hover:bg-[var(--color-surface-raised)] hover:border-[var(--color-accent)] transition text-sm self-end" id="a11y-btn">
         High-visibility / screen-reader mode
       </button>
     </div>
@@ -94,15 +71,15 @@
   <main class="flex-1 max-w-6xl w-full mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6 min-h-0">
     
     <!-- Left Column: Context Form -->
-    <section class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm flex flex-col justify-between">
+    <section class="panel p-6 flex flex-col justify-between">
       <div>
-        <h2 class="text-lg font-bold text-gray-900 mb-4" id="context-title">Your context</h2>
+        <h2 class="text-lg font-bold text-[var(--color-ink)] mb-4" id="context-title">Your context</h2>
         
         <form id="context-form" class="space-y-4" onsubmit="handleFormSubmit(event)">
           <!-- Location field -->
           <div class="flex flex-col">
-            <label for="planner-loc" class="text-sm font-semibold text-gray-700 mb-1" id="loc-label">Where are you now?</label>
-            <select id="planner-loc" class="border border-gray-300 rounded p-2 outline-none focus:ring-1 focus:ring-stadiumgreen bg-white text-gray-800 text-sm">
+            <label for="planner-loc" class="text-sm font-semibold text-[var(--color-ink-muted)] mb-1" id="loc-label">Where are you now?</label>
+            <select id="planner-loc" class="border border-[var(--color-border)] rounded p-2 outline-none focus:ring-1 focus:ring-[var(--color-accent)] bg-[var(--color-surface-raised)] text-[var(--color-ink)] text-sm">
               <option value="Gate A">Gate A (South-West)</option>
               <option value="Gate B">Gate B (North-West)</option>
               <option value="Gate C">Gate C (North-East - Inaccessible)</option>
@@ -117,8 +94,8 @@
 
           <!-- Destination field -->
           <div class="flex flex-col">
-            <label for="planner-dest" class="text-sm font-semibold text-gray-700 mb-1" id="dest-label">Where do you want to go?</label>
-            <select id="planner-dest" class="border border-gray-300 rounded p-2 outline-none focus:ring-1 focus:ring-stadiumgreen bg-white text-gray-800 text-sm">
+            <label for="planner-dest" class="text-sm font-semibold text-[var(--color-ink-muted)] mb-1" id="dest-label">Where do you want to go?</label>
+            <select id="planner-dest" class="border border-[var(--color-border)] rounded p-2 outline-none focus:ring-1 focus:ring-[var(--color-accent)] bg-[var(--color-surface-raised)] text-[var(--color-ink)] text-sm">
               <option value="Restroom">Restroom</option>
               <option value="First Aid Station">First Aid Station</option>
               <option value="Sensory Room">Sensory Room</option>
@@ -132,26 +109,26 @@
           </div>
 
           <!-- Accessibility Fieldset -->
-          <fieldset class="border border-gray-300 rounded-lg p-4 space-y-2">
-            <legend class="text-xs font-semibold text-gray-600 px-2 ml-2" id="a11y-legend">Accessibility needs</legend>
-            <div class="flex items-center gap-3 text-sm text-gray-800">
-              <input type="checkbox" id="need-wheelchair" name="a11y-needs" value="wheelchair" onchange="handleCheckboxChange('wheelchair')" class="w-4 h-4 text-stadiumgreen border-gray-300 rounded focus:ring-stadiumgreen cursor-pointer" />
+          <fieldset class="border border-[var(--color-border)] rounded-lg p-4 space-y-2">
+            <legend class="text-xs font-semibold text-[var(--color-ink-dim)] px-2 ml-2" id="a11y-legend">Accessibility needs</legend>
+            <div class="flex items-center gap-3 text-sm text-[var(--color-ink)]">
+              <input type="checkbox" id="need-wheelchair" name="a11y-needs" value="wheelchair" onchange="handleCheckboxChange('wheelchair')" class="w-4 h-4 text-[var(--color-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-accent)] cursor-pointer" />
               <label for="need-wheelchair" class="cursor-pointer" id="need-wheelchair-label">Wheelchair / step-free</label>
             </div>
-            <div class="flex items-center gap-3 text-sm text-gray-800">
-              <input type="checkbox" id="need-sensory" name="a11y-needs" value="sensory" onchange="handleCheckboxChange('sensory')" class="w-4 h-4 text-stadiumgreen border-gray-300 rounded focus:ring-stadiumgreen cursor-pointer" />
+            <div class="flex items-center gap-3 text-sm text-[var(--color-ink)]">
+              <input type="checkbox" id="need-sensory" name="a11y-needs" value="sensory" onchange="handleCheckboxChange('sensory')" class="w-4 h-4 text-[var(--color-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-accent)] cursor-pointer" />
               <label for="need-sensory" class="cursor-pointer" id="need-sensory-label">Sensory-friendly</label>
             </div>
-            <div class="flex items-center gap-3 text-sm text-gray-800">
-              <input type="checkbox" id="need-companion" name="a11y-needs" value="companion" onchange="handleCheckboxChange('companion')" class="w-4 h-4 text-stadiumgreen border-gray-300 rounded focus:ring-stadiumgreen cursor-pointer" />
+            <div class="flex items-center gap-3 text-sm text-[var(--color-ink)]">
+              <input type="checkbox" id="need-companion" name="a11y-needs" value="companion" onchange="handleCheckboxChange('companion')" class="w-4 h-4 text-[var(--color-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-accent)] cursor-pointer" />
               <label for="need-companion" class="cursor-pointer" id="need-companion-label">Companion Seating</label>
             </div>
-            <div class="flex items-center gap-3 text-sm text-gray-800">
-              <input type="checkbox" id="need-asl" name="a11y-needs" value="asl" onchange="handleCheckboxChange('asl')" class="w-4 h-4 text-stadiumgreen border-gray-300 rounded focus:ring-stadiumgreen cursor-pointer" />
+            <div class="flex items-center gap-3 text-sm text-[var(--color-ink)]">
+              <input type="checkbox" id="need-asl" name="a11y-needs" value="asl" onchange="handleCheckboxChange('asl')" class="w-4 h-4 text-[var(--color-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-accent)] cursor-pointer" />
               <label for="need-asl" class="cursor-pointer" id="need-asl-label">ASL Support</label>
             </div>
-            <div class="flex items-center gap-3 text-sm text-gray-800">
-              <input type="checkbox" id="need-walking" name="a11y-needs" value="walking" onchange="handleCheckboxChange('walking')" class="w-4 h-4 text-stadiumgreen border-gray-300 rounded focus:ring-stadiumgreen cursor-pointer" />
+            <div class="flex items-center gap-3 text-sm text-[var(--color-ink)]">
+              <input type="checkbox" id="need-walking" name="a11y-needs" value="walking" onchange="handleCheckboxChange('walking')" class="w-4 h-4 text-[var(--color-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-accent)] cursor-pointer" />
               <label for="need-walking" class="cursor-pointer" id="need-walking-label">Short Distance</label>
             </div>
           </fieldset>
@@ -159,52 +136,52 @@
           <!-- Ticket & Kickoff Grid -->
           <div class="grid grid-cols-2 gap-4">
             <div class="flex flex-col">
-              <label for="planner-ticket" class="text-sm font-semibold text-gray-700 mb-1" id="ticket-label">Ticket section (optional)</label>
-              <input type="text" id="planner-ticket" placeholder="e.g. 134" class="border border-gray-300 rounded p-2 outline-none focus:ring-1 focus:ring-stadiumgreen text-sm text-gray-800 bg-white" />
+              <label for="planner-ticket" class="text-sm font-semibold text-[var(--color-ink-muted)] mb-1" id="ticket-label">Ticket section (optional)</label>
+              <input type="text" id="planner-ticket" placeholder="e.g. 134" class="border border-[var(--color-border)] rounded p-2 outline-none focus:ring-1 focus:ring-[var(--color-accent)] text-sm text-[var(--color-ink)] bg-[var(--color-surface-raised)]" />
             </div>
             <div class="flex flex-col">
-              <label for="planner-kickoff" class="text-sm font-semibold text-gray-700 mb-1" id="kickoff-label">Minutes to kick-off</label>
-              <input type="number" id="planner-kickoff" value="20" class="border border-gray-300 rounded p-2 outline-none focus:ring-1 focus:ring-stadiumgreen text-sm text-gray-800 bg-white" />
+              <label for="planner-kickoff" class="text-sm font-semibold text-[var(--color-ink-muted)] mb-1" id="kickoff-label">Minutes to kick-off</label>
+              <input type="number" id="planner-kickoff" value="20" class="border border-[var(--color-border)] rounded p-2 outline-none focus:ring-1 focus:ring-[var(--color-accent)] text-sm text-[var(--color-ink)] bg-[var(--color-surface-raised)]" />
             </div>
           </div>
 
           <!-- Free text question -->
           <div class="flex flex-col">
-            <label for="input" class="text-sm font-semibold text-gray-700 mb-1" id="question-label">Ask a question (optional)</label>
-            <textarea id="input" rows="3" placeholder="e.g. Where is the nearest step-free restroom?" class="border border-gray-300 rounded p-2 outline-none focus:ring-1 focus:ring-stadiumgreen text-sm text-gray-800 bg-white resize-none"></textarea>
+            <label for="input" class="text-sm font-semibold text-[var(--color-ink-muted)] mb-1" id="question-label">Ask a question (optional)</label>
+            <textarea id="input" rows="3" placeholder="e.g. Where is the nearest step-free restroom?" class="border border-[var(--color-border)] rounded p-2 outline-none focus:ring-1 focus:ring-[var(--color-accent)] text-sm text-[var(--color-ink)] bg-[var(--color-surface-raised)] resize-none"></textarea>
           </div>
         </form>
       </div>
 
       <div class="mt-6 space-y-4">
-        <p class="text-xs text-gray-500" id="subtext">Free text is treated as data only and never as instructions.</p>
-        <button form="context-form" type="submit" id="submit-btn" class="w-full bg-stadiumgreen hover:bg-stadiumgreenhover text-white font-bold py-3 px-6 rounded transition text-center text-sm shadow-md">
+        <p class="text-xs text-[var(--color-ink-dim)]" id="subtext">Free text is treated as data only and never as instructions.</p>
+        <button form="context-form" type="submit" id="submit-btn" class="w-full bg-[var(--color-accent)] hover:bg-[var(--color-accent-strong)] text-[var(--color-void)] font-bold py-3 px-6 rounded transition text-center text-sm glow">
           Get help
         </button>
       </div>
     </section>
     
     <!-- Right Column: Assistance Display -->
-    <section class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm flex flex-col gap-4">
-      <h2 class="text-lg font-bold text-gray-900 mb-2" id="assistance-title">Assistance</h2>
+    <section class="panel p-6 flex flex-col gap-4">
+      <h2 class="text-lg font-bold text-[var(--color-ink)] mb-2" id="assistance-title">Assistance</h2>
 
       <!-- Live Rationale Bar -->
-      <div class="bg-emerald-50 border border-emerald-200 rounded-md p-3 text-xs text-emerald-800" id="rationaleBar">
+      <div class="bg-[var(--color-status-normal-bg)] border border-[var(--color-status-normal)] rounded-md p-3 text-xs text-[var(--color-status-normal-text)]" id="rationaleBar">
         <strong>💡 Live Gate Suggestion:</strong> <span id="recommendationExplanation">Analyzing best path...</span>
       </div>
 
       <!-- Dynamic Accessibility Guidance Banner -->
-      <div class="bg-blue-50 border border-blue-200 rounded-md p-4 flex flex-col gap-2" id="guidanceBanner" style="display: none;">
+      <div class="bg-[var(--color-accent-dim)] border border-[var(--color-accent)] rounded-md p-4 flex flex-col gap-2" id="guidanceBanner" style="display: none;">
         <div class="flex justify-between items-center">
-          <span class="text-xs font-bold text-blue-800 uppercase tracking-wider" id="guidanceTitle">Accessibility Guidance</span>
+          <span class="text-xs font-bold text-[var(--color-accent-strong)] uppercase tracking-wider" id="guidanceTitle">Accessibility Guidance</span>
           <span class="bg-blue-600 text-white font-mono font-bold text-xs px-2 py-0.5 rounded" id="guidanceGateBadge">—</span>
         </div>
-        <div class="text-sm text-blue-900 leading-relaxed" id="guidanceBody">—</div>
-        <div class="text-xs text-blue-700 border-t border-blue-200/50 pt-2 mt-1" id="guidanceServices">—</div>
+        <div class="text-sm text-[var(--color-ink)] leading-relaxed" id="guidanceBody">—</div>
+        <div class="text-xs text-[var(--color-ink-muted)] border-t border-blue-200/50 pt-2 mt-1" id="guidanceServices">—</div>
       </div>
       
-      <div id="log" class="flex-1 flex flex-col justify-center items-center text-center text-gray-500 space-y-4 min-h-[300px] overflow-y-auto">
-        <div id="placeholder-msg" class="max-w-md text-sm text-gray-400">
+      <div id="log" class="flex-1 flex flex-col justify-center items-center text-center text-[var(--color-ink-dim)] space-y-4 min-h-[300px] overflow-y-auto">
+        <div id="placeholder-msg" class="max-w-md text-sm text-[var(--color-ink-dim)]">
           Fill in your context and select “Get help”. Your answer appears here.
         </div>
       </div>
@@ -213,7 +190,7 @@
   </main>
 
   <!-- Footer -->
-  <footer class="py-6 text-center text-xs text-gray-400 bg-transparent border-t border-gray-200 mt-auto">
+  <footer class="py-6 text-center text-xs text-[var(--color-ink-dim)] bg-transparent border-t border-[var(--color-border)] mt-auto">
     <div class="max-w-6xl mx-auto px-6 flex justify-between items-center flex-wrap gap-2">
       <span id="footer-text">MetLife Stadium · New York New Jersey Stadium · East Rutherford, NJ, USA</span>
       <a href="/ops" style="color:#0A5C36; text-decoration:none;" id="ops-link" class="hover:underline">Ops Console →</a>
@@ -431,8 +408,8 @@
         if (dict.destinations[opt.value]) opt.textContent = dict.destinations[opt.value];
       });
 
-      log.className = "flex-1 flex flex-col justify-center items-center text-center text-gray-500 space-y-4 min-h-[300px]";
-      log.innerHTML = `<div id="placeholder-msg" class="max-w-md text-sm text-gray-400">${dict.defaultAssistance}</div>`;
+      log.className = "flex-1 flex flex-col justify-center items-center text-center text-[var(--color-ink-dim)] space-y-4 min-h-[300px]";
+      log.innerHTML = `<div id="placeholder-msg" class="max-w-md text-sm text-[var(--color-ink-dim)]">${dict.defaultAssistance}</div>`;
       history = [];
     }
 

@@ -1,0 +1,207 @@
+/**
+ * NEXUS design tokens — mission-control aesthetic.
+ *
+ * Every foreground/background pairing below is checked to WCAG AA (4.5:1 for
+ * body text, 3:1 for large text and UI boundaries). Status colours are only
+ * ever half the signal: components must pair them with a text label or icon.
+ */
+
+:root {
+  /* Surfaces — deep neutral, cool-shifted so the accent reads as light. */
+  --color-void: #06080d;
+  --color-surface: #0c1018;
+  --color-surface-raised: #131926;
+  --color-surface-overlay: #1a2233;
+  --color-border: #253044;
+  --color-border-strong: #35455f;
+
+  /* Text — measured against --color-surface. */
+  --color-ink: #eef3fb; /* 16.8:1 */
+  --color-ink-muted: #a7b4ca; /* 8.1:1 */
+  --color-ink-dim: #7d8ba3; /* 4.8:1 */
+
+  /* Accent. */
+  --color-accent: #4da3ff;
+  --color-accent-strong: #7cbcff;
+  --color-accent-dim: #1b3a5c;
+
+  /* Semantic status ramp. Each -text token clears 4.5:1 on its surface. */
+  --color-status-normal: #2ecc8f;
+  --color-status-normal-text: #6ee7b7;
+  --color-status-normal-bg: #0d2b22;
+  --color-status-elevated: #f0b429;
+  --color-status-elevated-text: #fcd34d;
+  --color-status-elevated-bg: #2e2410;
+  --color-status-high: #ff8c42;
+  --color-status-high-text: #fdba74;
+  --color-status-high-bg: #331c0e;
+  --color-status-critical: #ff4d5e;
+  --color-status-critical-text: #fda4af;
+  --color-status-critical-bg: #34101a;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', monospace;
+
+  --radius-panel: 0.75rem;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-void);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* A visible, high-contrast focus ring everywhere — never removed. */
+:focus-visible {
+  outline: 2px solid var(--color-accent-strong);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Tabular numerals stop live metrics from jittering as digits change. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.panel {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background-color: var(--color-accent);
+  color: var(--color-void);
+  font-weight: 600;
+  border-radius: 0 0 0.5rem 0;
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+/*
+ * The control room reacting: a subtle, slow pulse on a critical status pill.
+ * Deliberately restrained — a fast or bright flash in a room staffed for
+ * hours is fatigue, not information. One breath every 2.4s draws the eye
+ * without demanding it, and it rides on box-shadow so it never shifts layout.
+ */
+.pulse-critical {
+  animation: nexus-pulse-critical 2.4s ease-in-out infinite;
+}
+
+@keyframes nexus-pulse-critical {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 77, 94, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(255, 77, 94, 0.22);
+  }
+}
+
+/*
+ * A one-shot lift when a panel escalates, so a change of state reads as an
+ * event rather than a silent value swap. Fires once and settles.
+ */
+.flash-escalate {
+  animation: nexus-flash-escalate 0.9s ease-out 1;
+}
+
+@keyframes nexus-flash-escalate {
+  0% {
+    border-color: var(--color-status-critical);
+    box-shadow: 0 0 0 1px var(--color-status-critical);
+  }
+  100% {
+    border-color: var(--color-border);
+    box-shadow: none;
+  }
+}
+
+/* High contrast mode overrides */
+body.high-contrast {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+body.high-contrast * {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+body.high-contrast button, 
+body.high-contrast select, 
+body.high-contrast input, 
+body.high-contrast textarea {
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+  background-color: #000000 !important;
+}
+
+body.high-contrast button:hover {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Utility classes for status colors */
+.status-normal {
+  color: var(--color-status-normal);
+}
+.status-elevated {
+  color: var(--color-status-elevated);
+}
+.status-high {
+  color: var(--color-status-high);
+}
+.status-critical {
+  color: var(--color-status-critical);
+}
+
+.bg-status-normal {
+  background-color: var(--color-status-normal-bg);
+}
+.bg-status-elevated {
+  background-color: var(--color-status-elevated-bg);
+}
+.bg-status-high {
+  background-color: var(--color-status-high-bg);
+}
+.bg-status-critical {
+  background-color: var(--color-status-critical-bg);
+}
+
+/* Text gradient for headings */
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-status-normal) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow effect for buttons */
+.glow {
+  box-shadow: 0 0 20px rgba(77, 163, 255, 0.3);
+}
+
+.glow:hover {
+  box-shadow: 0 0 30px rgba(77, 163, 255, 0.5);
+}
