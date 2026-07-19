@@ -24,7 +24,7 @@ from typing import List, Optional
 
 from assistant import StadiumAssistant, get_live_status
 
-app = Flask(__name__, static_folder="../frontend", static_url_path="")
+app = Flask(__name__, static_folder="../public", static_url_path="")
 
 # Configure CORS based on allowed origins environment variable
 allowed_origins_str = os.environ.get("ALLOWED_ORIGINS", "").strip()
